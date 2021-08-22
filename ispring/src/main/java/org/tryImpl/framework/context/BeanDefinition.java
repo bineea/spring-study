@@ -3,7 +3,7 @@ package org.tryImpl.framework.context;
 public class BeanDefinition {
 
     private String beanName;
-    private String scope;
+    private ScopeEnum scope;
     private boolean lazy;
     private Class<?> beanClass;
 
@@ -15,11 +15,11 @@ public class BeanDefinition {
         this.beanName = beanName;
     }
 
-    public String getScope() {
+    public ScopeEnum getScope() {
         return scope;
     }
 
-    public void setScope(String scope) {
+    public void setScope(ScopeEnum scope) {
         this.scope = scope;
     }
 
