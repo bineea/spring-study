@@ -41,14 +41,23 @@ public abstract class AbstractApplicationContext implements BeanFactory {
      */
     protected void createSingletonBean() {
         for(String beanName : beanNameList) {
-            Object obj = getSingleton(beanName);
-            if(obj == null) {
-
-            }
-
-
-            //创建代理
+            doCreateSingletonBean(beanName);
         }
+    }
+
+    private void doCreateSingletonBean(String beanName) {
+        Object obj = getSingleton(beanName);
+        if(obj == null) {
+
+        }
+
+        //填充属性
+
+        //后置处理
+        //优先简单实现吧，通过beanClass判断是否存在@Transational注解标注的方法，如果存在则进行动态代理
+        //1.执行before
+        //2.执行init
+        //3.执行after
     }
 
     private Object getSingleton(String beanName) {
