@@ -6,6 +6,8 @@
         <artifactId>spring-study</artifactId>
         <groupId>org.tryImpl</groupId>
         <version>1.0-SNAPSHOT</version>
+        <!--子模块想要用父模块pom中的版本，请注意配置relativePath属性-->
+        <relativePath />
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -18,8 +20,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -27,5 +29,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <dependencies></dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+    </dependencies>
 </project>
