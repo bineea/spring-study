@@ -11,8 +11,15 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor{
     }
 
     protected Object wrapIfNecessary(Object bean, String beanName) {
-        bean.getClass();
-
-        return null;
+        Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName);
+        if(specificInterceptors != null) {
+            Object proxy = createProxy(bean.getClass(), beanName, specificInterceptors);
+            return proxy;
+        }
+        return bean;
     }
+
+    protected abstract Object[] getAdvicesAndAdvisorsForBean(Class<?> clazz, String beanName);
+
+    protected abstract Object createProxy(Class<?> clazz, String beanName, Object[] specificInterceptors);
 }

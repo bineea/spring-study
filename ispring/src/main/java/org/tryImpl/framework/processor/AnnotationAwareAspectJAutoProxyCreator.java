@@ -1,6 +1,6 @@
 package org.tryImpl.framework.processor;
 
-public class InfrastructureAdvisorAutoProxyCreator extends AbstractAutoProxyCreator {
+public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCreator {
 
     @Override
     protected Object[] getAdvicesAndAdvisorsForBean(Class<?> clazz, String beanName) {
