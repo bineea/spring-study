@@ -19,10 +19,12 @@ public class ContextLoaderListener implements ServletContextListener {
         this.contextClass = contextClass;
     }
 
+    @Override
     public void contextInitialized(ServletContextEvent sce) {
 
     }
 
+    @Override
     public void contextDestroyed(ServletContextEvent sce) {
 
     }
