@@ -27,6 +27,7 @@ public abstract class AbstractApplicationContext implements BeanFactory {
     protected final void create() {
         synchronized (this.keepSafeOperation) {
             registerBeanDefinition();
+            registerBeanPostProcessor();
             createSingletonBean();
         }
     }
@@ -35,6 +36,11 @@ public abstract class AbstractApplicationContext implements BeanFactory {
      * 解析并注册beanDefinition
      */
     protected abstract void registerBeanDefinition();
+
+    /**
+     * 解析并注册beanPostProcessor
+     */
+    protected abstract void registerBeanPostProcessor();
 
     /**
      * 创建单例bean

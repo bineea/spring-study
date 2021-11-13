@@ -69,6 +69,11 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
 
     }
 
+    @Override
+    protected void registerBeanPostProcessor() {
+
+    }
+
     private Set<Class<?>> getBeanClass() throws ClassNotFoundException {
         Set<Class<?>> beanClassSet = new HashSet<>();
         beanClassSet.addAll(classSet);

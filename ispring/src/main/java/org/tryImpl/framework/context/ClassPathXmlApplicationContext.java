@@ -43,6 +43,11 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     }
 
     @Override
+    protected void registerBeanPostProcessor() {
+
+    }
+
+    @Override
     protected void createSingletonBean() {
 
     }
