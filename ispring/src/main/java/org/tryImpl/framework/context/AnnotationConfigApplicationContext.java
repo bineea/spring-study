@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
-public class AnnotationConfigApplicationContext extends AbstractApplicationContext {
+public class AnnotationConfigApplicationContext extends AbstractApplicationContext implements BeanDefinitionRegistry {
 
     private Set<Class<?>> classSet;
 
