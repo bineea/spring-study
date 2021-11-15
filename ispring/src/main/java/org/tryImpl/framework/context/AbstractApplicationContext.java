@@ -24,7 +24,7 @@ public abstract class AbstractApplicationContext implements BeanFactory {
         return singletonObjects.get(beanName);
     }
 
-    protected final void create() {
+    protected final void refresh() {
         synchronized (this.keepSafeOperation) {
             registerBeanDefinition();
             registerBeanPostProcessor();

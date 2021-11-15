@@ -14,8 +14,8 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     private ClassPathXmlApplicationContext() {}
 
     public ClassPathXmlApplicationContext(String configLocation) {
-        init(configLocation);
-        create();
+        this.init(configLocation);
+        super.refresh();
     }
 
     private void init(String configLocation) {

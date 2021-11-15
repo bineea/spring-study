@@ -11,11 +11,14 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
 
     private Set<Class<?>> classSet;
 
-    private AnnotationConfigApplicationContext() {}
+    private AnnotationConfigApplicationContext() {
+
+    }
 
     public AnnotationConfigApplicationContext(Class<?>... classes) {
+        this();
         this.init(classes);
-        super.create();
+        super.refresh();
     }
 
     private void init(Class<?>... classes) {
