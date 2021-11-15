@@ -1,6 +1,7 @@
 package org.tryImpl.framework.context;
 
 import org.tryImpl.framework.annotation.*;
+import org.tryImpl.framework.processor.ConfigurationClassPostProcessor;
 
 import java.io.File;
 import java.net.URL;
@@ -9,10 +10,18 @@ import java.util.Set;
 
 public class AnnotationConfigApplicationContext extends AbstractApplicationContext implements BeanDefinitionRegistry {
 
+    private static final String CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME = "internalConfigurationAnnotationProcessor";
+
     private Set<Class<?>> classSet;
 
     private AnnotationConfigApplicationContext() {
+        BeanDefinition beanDefinition = new BeanDefinition();
+        beanDefinition.setBeanName(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME);
+        beanDefinition.setScope(ScopeEnum.singleton);
+        beanDefinition.setLazy(false);
+        beanDefinition.setBeanClass(ConfigurationClassPostProcessor.class);
 
+        this.registerBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME, beanDefinition);
     }
 
     public AnnotationConfigApplicationContext(Class<?>... classes) {
@@ -115,6 +124,11 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
         fileName = fileName.replace(File.separatorChar, '.');
         Class<?> clazz = ClassLoader.getSystemClassLoader().loadClass(fileName);
         return clazz;
+    }
+
+    @Override
+    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
+        //TODO
     }
 
 //    private Class<?> scanBeanMethod2Class(Method method) {

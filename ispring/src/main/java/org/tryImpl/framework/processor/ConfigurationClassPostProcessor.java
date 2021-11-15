@@ -1,4 +1,11 @@
 package org.tryImpl.framework.processor;
 
-public class ConfigurationClassPostProcessor {
+import org.tryImpl.framework.context.BeanDefinitionRegistry;
+
+public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor {
+
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
+
+    }
 }
