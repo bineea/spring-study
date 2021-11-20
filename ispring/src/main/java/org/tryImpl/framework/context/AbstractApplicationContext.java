@@ -26,16 +26,22 @@ public abstract class AbstractApplicationContext implements BeanFactory {
 
     protected final void refresh() {
         synchronized (this.keepSafeOperation) {
-            registerBeanDefinition();
+            refreshBeanFactory();
+            invokeBeanFactoryPostProcessor();
             registerBeanPostProcessor();
             createSingletonBean();
         }
     }
 
     /**
-     * 解析并注册beanDefinition
+     * 更新beanFactory
      */
-    protected abstract void registerBeanDefinition();
+    protected abstract void refreshBeanFactory();
+
+    /**
+     * 执行beanFactoryPostProcessor
+     */
+    protected abstract void invokeBeanFactoryPostProcessor();
 
     /**
      * 解析并注册beanPostProcessor

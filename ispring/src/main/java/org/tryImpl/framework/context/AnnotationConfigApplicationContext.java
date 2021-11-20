@@ -6,15 +6,21 @@ import org.tryImpl.framework.processor.ConfigurationClassPostProcessor;
 import java.io.File;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class AnnotationConfigApplicationContext extends AbstractApplicationContext implements BeanDefinitionRegistry {
+
+    private final DefaultListableBeanFactory beanFactory;
 
     private static final String CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME = "internalConfigurationAnnotationProcessor";
 
     private Set<Class<?>> classSet;
 
     private AnnotationConfigApplicationContext() {
+
+        this.beanFactory = new DefaultListableBeanFactory();
+
         BeanDefinition beanDefinition = new BeanDefinition();
         beanDefinition.setBeanName(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME);
         beanDefinition.setScope(ScopeEnum.singleton);
@@ -47,7 +53,7 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
     }
 
     @Override
-    protected void registerBeanDefinition() {
+    protected void refreshBeanFactory() {
         try {
             Set<Class<?>> beanClasses = this.getBeanClass();
             for(Class<?> beanClass : beanClasses) {
@@ -78,6 +84,11 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+
+    }
+
+    @Override
+    protected void invokeBeanFactoryPostProcessor() {
 
     }
 
@@ -128,7 +139,12 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
 
     @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
-        //TODO
+        this.beanFactory.registerBeanDefinition(beanName, beanDefinition);
+    }
+
+    @Override
+    public List<String> getBeanDefinitionNames() {
+        return beanFactory.getBeanDefinitionNames();
     }
 
 //    private Class<?> scanBeanMethod2Class(Method method) {

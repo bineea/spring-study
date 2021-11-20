@@ -1,7 +1,6 @@
 package org.tryImpl.framework.context;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
@@ -26,7 +25,7 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     }
 
     @Override
-    protected void registerBeanDefinition() {
+    protected void refreshBeanFactory() {
         try {
             InputStream inputStream = ClassPathXmlApplicationContext.class.getClassLoader().getResourceAsStream(configLocation);
             //解析sqlMapperConfig.xml
@@ -40,6 +39,11 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    protected void invokeBeanFactoryPostProcessor() {
+
     }
 
     @Override
