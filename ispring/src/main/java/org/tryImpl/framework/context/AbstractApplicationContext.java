@@ -1,102 +1,57 @@
 package org.tryImpl.framework.context;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class AbstractApplicationContext implements BeanFactory {
-
-    protected Map<String, Object> singletonObjects = new HashMap<>();
-
-    protected Map<String, Object> earlySingletonObjects = new HashMap<>();
-
-    protected Map<String, Object> singletonFactories = new HashMap<>();
-
-    protected Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
-
-    protected List<String> beanNameList = new ArrayList<>();
 
     protected Object keepSafeOperation = new Object();
 
     protected Set<String> singletonsCurrentlyInCreation = new HashSet<>();
 
+    public abstract BeanFactory getBeanFactory();
+
     @Override
     public Object getBean(String beanName) {
-        return singletonObjects.get(beanName);
+        return getBeanFactory().getBean(beanName);
     }
 
     protected final void refresh() {
         synchronized (this.keepSafeOperation) {
-            refreshBeanFactory();
-            invokeBeanFactoryPostProcessor();
-            registerBeanPostProcessor();
-            createSingletonBean();
+            BeanFactory beanFactory = refreshBeanFactory();
+            invokeBeanFactoryPostProcessor(beanFactory);
+            registerBeanPostProcessor(beanFactory);
+            createSingletonBean(beanFactory);
         }
     }
 
     /**
      * 更新beanFactory
      */
-    protected abstract void refreshBeanFactory();
+    protected BeanFactory refreshBeanFactory() {
+        return getBeanFactory();
+    }
 
     /**
      * 执行beanFactoryPostProcessor
      */
-    protected abstract void invokeBeanFactoryPostProcessor();
+    protected void invokeBeanFactoryPostProcessor(BeanFactory beanFactory) {
+        //TODO 获取beanFactory中的beanFactoryPostProcessor
+        //TODO 执行beanFactoryPostProcessor的处理方法，解析配置类
+    }
 
     /**
      * 解析并注册beanPostProcessor
      */
-    protected abstract void registerBeanPostProcessor();
+    protected void registerBeanPostProcessor(BeanFactory beanFactory) {
+
+    }
 
     /**
      * 创建单例bean
      */
-    protected void createSingletonBean() {
-        for(String beanName : beanNameList) {
-            doCreateSingletonBean(beanName);
-        }
-    }
+    protected void createSingletonBean(BeanFactory beanFactory) {
 
-    private void doCreateSingletonBean(String beanName) {
-        Object obj = getSingleton(beanName);
-        if(obj == null) {
-
-        }
-
-        //填充属性
-
-        //后置处理
-        //优先简单实现吧，通过beanClass判断是否存在@Transational注解标注的方法，如果存在则进行动态代理
-        //1.执行before
-        //2.执行init
-        //3.执行after
-    }
-
-    private Object getSingleton(String beanName) {
-        Object obj = singletonObjects.get(beanName);
-        if(obj == null) {
-            obj = earlySingletonObjects.get(beanName);
-            if(obj == null) {
-                obj = singletonFactories.get(beanName);
-            }
-        }
-        return obj;
-    }
-
-    private Object doCreateBeanInstance(String beanName) {
-        try {
-            Object sampleInstance = beanDefinitionMap.get(beanName).getBeanClass().getDeclaredConstructor().newInstance();
-            return sampleInstance;
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
 }

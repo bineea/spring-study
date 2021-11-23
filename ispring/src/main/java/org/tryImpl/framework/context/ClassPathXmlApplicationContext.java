@@ -25,34 +25,25 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     }
 
     @Override
-    protected void refreshBeanFactory() {
-        try {
-            InputStream inputStream = ClassPathXmlApplicationContext.class.getClassLoader().getResourceAsStream(configLocation);
-            //解析sqlMapperConfig.xml
-            Document document = new SAXReader().read(inputStream);
-            //获取配置文件根对象，即<configuration>
-            Element rootElement = document.getRootElement();
-
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+    public BeanFactory getBeanFactory() {
+        return null;
     }
 
-    @Override
-    protected void invokeBeanFactoryPostProcessor() {
+//    @Override
+//    protected void refreshBeanFactory() {
+//        try {
+//            InputStream inputStream = ClassPathXmlApplicationContext.class.getClassLoader().getResourceAsStream(configLocation);
+//            //解析sqlMapperConfig.xml
+//            Document document = new SAXReader().read(inputStream);
+//            //获取配置文件根对象，即<configuration>
+//            Element rootElement = document.getRootElement();
+//
+//
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new RuntimeException(e);
+//        }
+//    }
 
-    }
-
-    @Override
-    protected void registerBeanPostProcessor() {
-
-    }
-
-    @Override
-    protected void createSingletonBean() {
-
-    }
 }
