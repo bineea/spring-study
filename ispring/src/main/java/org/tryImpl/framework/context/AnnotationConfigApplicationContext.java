@@ -1,6 +1,7 @@
 package org.tryImpl.framework.context;
 
 import org.tryImpl.framework.annotation.*;
+import org.tryImpl.framework.processor.BeanDefinitionRegistryPostProcessor;
 import org.tryImpl.framework.processor.ConfigurationClassPostProcessor;
 
 import java.io.File;
@@ -53,8 +54,18 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
     }
 
     @Override
-    public BeanFactory getBeanFactory() {
+    public DefaultListableBeanFactory getBeanFactory() {
         return beanFactory;
+    }
+
+    //FIXME 通过参数传递beanFactory暂时无法使用
+    @Override
+    protected void invokeBeanFactoryPostProcessor(BeanFactory beanFactory) {
+        String[] beanNames = getBeanFactory().getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class);
+        for (String beanName : beanNames) {
+            BeanDefinitionRegistryPostProcessor bean = (BeanDefinitionRegistryPostProcessor) getBeanFactory().getBean(beanName);
+            bean.postProcessBeanDefinitionRegistry(getBeanFactory());
+        }
     }
 
     @Override

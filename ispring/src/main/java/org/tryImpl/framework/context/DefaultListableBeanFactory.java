@@ -2,7 +2,7 @@ package org.tryImpl.framework.context;
 
 import java.util.*;
 
-public class DefaultListableBeanFactory extends AbstractBeanFactory implements BeanFactory, BeanDefinitionRegistry {
+public class DefaultListableBeanFactory extends AbstractBeanFactory implements ListableBeanFactory, BeanDefinitionRegistry {
 
     protected Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
 
@@ -27,5 +27,17 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory implements B
     @Override
     protected BeanDefinition getBeanDefinition(String beanName) {
         return beanDefinitionMap.get(beanName);
+    }
+
+    @Override
+    public String[] getBeanNamesForType(Class<?> type) {
+        List<String> beanNameResult = new ArrayList<>();
+        for (String beanName : beanDefinitionNameList) {
+            BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
+            if (type.isAssignableFrom(beanDefinition.getBeanClass()) || Objects.equals(type, beanDefinition.getBeanClass())) {
+                beanNameResult.add(beanName);
+            }
+        }
+        return beanNameResult.toArray(new String[beanNameResult.size()]);
     }
 }

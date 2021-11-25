@@ -1,11 +1,5 @@
 package org.tryImpl.framework.context;
 
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-
-import java.io.InputStream;
-
 public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
 
     private String configLocation;
@@ -25,8 +19,13 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     }
 
     @Override
-    public BeanFactory getBeanFactory() {
+    public ListableBeanFactory getBeanFactory() {
         return null;
+    }
+
+    @Override
+    protected void invokeBeanFactoryPostProcessor(BeanFactory beanFactory) {
+        //TODO
     }
 
 //    @Override

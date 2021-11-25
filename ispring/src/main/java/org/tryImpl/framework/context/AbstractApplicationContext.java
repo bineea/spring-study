@@ -9,7 +9,7 @@ public abstract class AbstractApplicationContext implements BeanFactory {
 
     protected Set<String> singletonsCurrentlyInCreation = new HashSet<>();
 
-    public abstract BeanFactory getBeanFactory();
+    public abstract ListableBeanFactory getBeanFactory();
 
     @Override
     public Object getBean(String beanName) {
@@ -35,10 +35,7 @@ public abstract class AbstractApplicationContext implements BeanFactory {
     /**
      * 执行beanFactoryPostProcessor
      */
-    protected void invokeBeanFactoryPostProcessor(BeanFactory beanFactory) {
-        //TODO 获取beanFactory中的beanFactoryPostProcessor
-        //TODO 执行beanFactoryPostProcessor的处理方法，解析配置类
-    }
+    protected abstract void invokeBeanFactoryPostProcessor(BeanFactory beanFactory);
 
     /**
      * 解析并注册beanPostProcessor
