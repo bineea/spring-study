@@ -19,7 +19,7 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     }
 
     @Override
-    public ListableBeanFactory getBeanFactory() {
+    public ConfigurableListableBeanFactory getBeanFactory() {
         return null;
     }
 

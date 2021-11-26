@@ -24,7 +24,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         return beanPostProcessorList;
     }
 
-    protected void addBeanPostPorcessor(BeanPostProcessor beanPostProcessor) {
+    public void addBeanPostPorcessor(BeanPostProcessor beanPostProcessor) {
         this.beanPostProcessorList.remove(beanPostProcessor);
         this.beanPostProcessorList.add(beanPostProcessor);
     }

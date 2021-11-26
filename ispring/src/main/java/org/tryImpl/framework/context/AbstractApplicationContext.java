@@ -1,5 +1,7 @@
 package org.tryImpl.framework.context;
 
+import org.tryImpl.framework.processor.BeanDefinitionRegistryPostProcessor;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,7 +11,7 @@ public abstract class AbstractApplicationContext implements BeanFactory {
 
     protected Set<String> singletonsCurrentlyInCreation = new HashSet<>();
 
-    public abstract ListableBeanFactory getBeanFactory();
+    public abstract ConfigurableListableBeanFactory getBeanFactory();
 
     @Override
     public Object getBean(String beanName) {
@@ -35,7 +37,13 @@ public abstract class AbstractApplicationContext implements BeanFactory {
     /**
      * 执行beanFactoryPostProcessor
      */
-    protected abstract void invokeBeanFactoryPostProcessor(BeanFactory beanFactory);
+    protected void invokeBeanFactoryPostProcessor(BeanFactory beanFactory) {
+        String[] beanNames = getBeanFactory().getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class);
+        for (String beanName : beanNames) {
+            BeanDefinitionRegistryPostProcessor bean = (BeanDefinitionRegistryPostProcessor) getBeanFactory().getBean(beanName);
+            bean.postProcessBeanDefinitionRegistry((BeanDefinitionRegistry) getBeanFactory());
+        }
+    }
 
     /**
      * 解析并注册beanPostProcessor

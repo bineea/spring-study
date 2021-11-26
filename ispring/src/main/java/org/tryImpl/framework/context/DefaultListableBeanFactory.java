@@ -2,7 +2,7 @@ package org.tryImpl.framework.context;
 
 import java.util.*;
 
-public class DefaultListableBeanFactory extends AbstractBeanFactory implements ListableBeanFactory, BeanDefinitionRegistry {
+public class DefaultListableBeanFactory extends AbstractBeanFactory implements ConfigurableListableBeanFactory, BeanDefinitionRegistry {
 
     protected Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
 

@@ -58,16 +58,6 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
         return beanFactory;
     }
 
-    //FIXME 通过参数传递beanFactory暂时无法使用
-    @Override
-    protected void invokeBeanFactoryPostProcessor(BeanFactory beanFactory) {
-        String[] beanNames = getBeanFactory().getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class);
-        for (String beanName : beanNames) {
-            BeanDefinitionRegistryPostProcessor bean = (BeanDefinitionRegistryPostProcessor) getBeanFactory().getBean(beanName);
-            bean.postProcessBeanDefinitionRegistry(getBeanFactory());
-        }
-    }
-
     @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
         this.beanFactory.registerBeanDefinition(beanName, beanDefinition);
