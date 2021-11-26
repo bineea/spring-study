@@ -51,6 +51,17 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
         if(classSet.size() <= 0) {
             throw new IllegalArgumentException("ispring配置类无效-ispring配置类必须设置@Configuration注解");
         }
+
+        for (Class<?> clazz : classes) {
+            int index = clazz.getName().lastIndexOf(".");
+            String beanName = clazz.getName().substring(index+1,index+2).toLowerCase() + clazz.getName().substring(index+2);
+            BeanDefinition beanDefinition = new BeanDefinition();
+            beanDefinition.setBeanName(beanName);
+            beanDefinition.setScope(ScopeEnum.singleton);
+            beanDefinition.setLazy(false);
+            beanDefinition.setBeanClass(clazz);
+            this.registerBeanDefinition(beanName, beanDefinition);
+        }
     }
 
     @Override
@@ -66,6 +77,11 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
     @Override
     public List<String> getBeanDefinitionNames() {
         return beanFactory.getBeanDefinitionNames();
+    }
+
+    @Override
+    public BeanDefinition getBeanDefinition(String beanName) {
+        return getBeanFactory().getBeanDefinition(beanName);
     }
 
 //    private Class<?> scanBeanMethod2Class(Method method) {

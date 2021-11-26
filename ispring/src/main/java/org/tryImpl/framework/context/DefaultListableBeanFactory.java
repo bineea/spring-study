@@ -25,7 +25,7 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory implements C
     }
 
     @Override
-    protected BeanDefinition getBeanDefinition(String beanName) {
+    public BeanDefinition getBeanDefinition(String beanName) {
         return beanDefinitionMap.get(beanName);
     }
 

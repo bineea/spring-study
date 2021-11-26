@@ -24,7 +24,10 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
         Class<? extends BeanDefinitionRegistry> registryClass = registry.getClass();
-        this.parse(registry, registryClass);
+
+        for (String beanName : registry.getBeanDefinitionNames()) {
+            this.parse(registry, registry.getBeanDefinition(beanName).getBeanClass());
+        }
     }
 
     private void parse(BeanDefinitionRegistry registry, Class<?> clazz) {
@@ -87,7 +90,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     private Set<Class<?>> scanBeanClass(String[] scanPaths) {
         Set<Class<?>> beanClassSet = new HashSet<>();
         for(String scanPath : scanPaths) {
-            scanPath = scanPath.replaceAll(".", "/");
+            scanPath = scanPath.replaceAll("\\.", "/");
             URL classUrl = ClassLoader.getSystemClassLoader().getResource(scanPath);
             File classUrlFile = new File(classUrl.getFile());
             if(classUrlFile.isFile() && classUrlFile.getAbsolutePath().endsWith(".class")) {
