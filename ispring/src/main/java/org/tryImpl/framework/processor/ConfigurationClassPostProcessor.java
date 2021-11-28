@@ -8,6 +8,7 @@ import org.tryImpl.framework.context.ScopeEnum;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -137,15 +138,26 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         return path;
     }
 
-    private void getImport() {
-
+    private void processImports(Class<?> clazz) {
+        Set<Class<?>> imports = this.getImports(clazz);
+        //TODO 如何解析处理import注解注入的class
     }
 
-    private void collectImport(BeanDefinitionRegistry registry, Class<?> clazz) {
+    private Set<Class<?>> getImports(Class<?> clazz) {
+        Set<Class<?>> importClasses = new HashSet<>();
+        collectImport(importClasses, clazz);
+        return importClasses;
+    }
+
+    private void collectImport(Set<Class<?>> importClasses, Class<?> clazz) {
         for (Annotation annotation : clazz.getAnnotations()) {
             if (Objects.equals(Import.class.getName(), annotation.annotationType().getName())) {
                 Class<?> importClass = ((Import) annotation).value();
-
+                importClasses.add(importClass);
+            } else if (annotation.annotationType().getName().contains("java.lang.annotation")) {
+                continue;
+            } else {
+                this.collectImport(importClasses, annotation.getClass());
             }
         }
     }
