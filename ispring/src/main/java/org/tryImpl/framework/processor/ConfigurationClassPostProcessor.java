@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor {
 
@@ -39,7 +40,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             for (Class<?> beanClass : beanClasses) {
                 if (beanClass.isAnnotationPresent(Configuration.class)) {
                     this.parse(registry, beanClass);
-                } else {
+                } else if (beanClass.isAnnotationPresent(Component.class)){
                     String beanName = beanClass.getAnnotation(Component.class).value();
                     if (beanName == null || beanName.length() <= 0) {
                         int index = beanClass.getName().lastIndexOf(".");
@@ -107,9 +108,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     }
 
     private Class<?> scanFile2Class(File classUrlFile) {
-        String basePath = AnnotationConfigApplicationContext.class.getClassLoader().getResource("/").getPath();
-        String fileAbsolutePath = classUrlFile.getAbsolutePath();
-        String fileName = fileAbsolutePath.substring(fileAbsolutePath.lastIndexOf(basePath), fileAbsolutePath.lastIndexOf(".class"));
+        String basePath = this.formatPath(AnnotationConfigApplicationContext.class.getClassLoader().getResource("").getPath());
+        String fileAbsolutePath = this.formatPath(classUrlFile.getAbsolutePath());
+        String fileName = fileAbsolutePath.substring(fileAbsolutePath.lastIndexOf(basePath)+basePath.length(), fileAbsolutePath.lastIndexOf(".class"));
         fileName = fileName.replace(File.separatorChar, '.');
         Class<?> clazz = null;
         try {
@@ -119,6 +120,21 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             throw new RuntimeException(e);
         }
         return clazz;
+    }
+
+    private String formatPath(String path) {
+        if (path == null) {
+            return path;
+        }
+        if (path.length() == 0 || path.trim().length() == 0) {
+            return path.trim();
+        }
+        if (path.startsWith("/") || path.startsWith("\\")) {
+            path = path.substring(1);
+        }
+        path = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
+        path = path.replaceAll("\\\\", Matcher.quoteReplacement(File.separator));
+        return path;
     }
 
     private void getImport() {
