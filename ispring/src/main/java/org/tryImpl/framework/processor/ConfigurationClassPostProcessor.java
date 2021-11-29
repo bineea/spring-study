@@ -8,9 +8,7 @@ import org.tryImpl.framework.context.ScopeEnum;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Objects;
@@ -34,6 +32,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
     private void parse(BeanDefinitionRegistry registry, Class<?> clazz) {
 
+        //解析componentScan注解
         if (clazz.isAnnotationPresent(ComponentScan.class)) {
             ComponentScan componentScan = clazz.getAnnotation(ComponentScan.class);
             String[] scanPaths = componentScan.value();
@@ -59,8 +58,10 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             }
         }
 
-        //TODO 解析import
+        //解析import注解
+        processImports(registry, clazz);
 
+        //解析bean注解
 //        Method[] methods = clazz.getDeclaredMethods();
 //        for (Method method : methods) {
 //            if (method.isAnnotationPresent(Bean.class)) {
@@ -138,9 +139,20 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         return path;
     }
 
-    private void processImports(Class<?> clazz) {
+    private void processImports(BeanDefinitionRegistry registry, Class<?> clazz) {
         Set<Class<?>> imports = this.getImports(clazz);
-        //TODO 如何解析处理import注解注入的class
+        for (Class<?> importClass : imports) {
+            if (importClass.isAssignableFrom(ImportBeanDefinitionRegistrar.class)) {
+                try {
+                    //手动初始化，执行beanDefinition的注册
+                    ImportBeanDefinitionRegistrar importInstance = (ImportBeanDefinitionRegistrar) importClass.getDeclaredConstructor().newInstance();
+                    importInstance.registerBeanDefinitions(registry);
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 
     private Set<Class<?>> getImports(Class<?> clazz) {

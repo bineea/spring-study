@@ -42,6 +42,11 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         } else {
             //获取beanDefinition
             BeanDefinition beanDefinition = this.getBeanDefinition(beanName);
+            //尝试通过BeanPostProcessors获取代理对象
+            bean = this.resolveBeforeInstantiation(beanName, beanDefinition);
+            if (bean != null) {
+                return bean;
+            }
             //反射创建bean实例
             Object beanInstance = this.createBeanInstance(beanDefinition);
             //缓存bean实例
@@ -85,6 +90,11 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             earlySingletonObjects.remove(beanName);
             singletonFactories.remove(beanName);
         }
+    }
+
+    private Object resolveBeforeInstantiation(String beanName, BeanDefinition beanDefinition) {
+        //TODO尝试通过BeanPostProcessors获取代理对象
+        return null;
     }
 
     private Object createBeanInstance(BeanDefinition beanDefinition) {
