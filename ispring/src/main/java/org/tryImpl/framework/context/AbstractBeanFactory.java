@@ -2,6 +2,7 @@ package org.tryImpl.framework.context;
 
 import org.tryImpl.framework.annotation.Autowired;
 import org.tryImpl.framework.processor.BeanPostProcessor;
+import org.tryImpl.framework.processor.InstantiationAwareBeanPostProcessor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -93,7 +94,16 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     }
 
     private Object resolveBeforeInstantiation(String beanName, BeanDefinition beanDefinition) {
-        //TODO尝试通过BeanPostProcessors获取代理对象
+        //尝试通过BeanPostProcessors获取代理对象
+        List<BeanPostProcessor> beanPostProcessorList = getBeanPostProcessorList();
+        for (BeanPostProcessor beanPostProcessor : beanPostProcessorList) {
+            if (InstantiationAwareBeanPostProcessor.class.isAssignableFrom(beanPostProcessor.getClass())) {
+                Object instantiation = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessBeforeInstantiation(beanName, beanDefinition.getBeanClass());
+                if (instantiation != null) {
+                    return instantiation;
+                }
+            }
+        }
         return null;
     }
 
