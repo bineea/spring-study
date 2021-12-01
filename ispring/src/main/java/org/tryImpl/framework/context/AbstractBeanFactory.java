@@ -19,6 +19,19 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     private final List<BeanPostProcessor> beanPostProcessorList = new CopyOnWriteArrayList();
 
+    @Override
+    public Class<?> getType(String beanName) {
+        Object singletonBean = this.getSingletonBean(beanName);
+        if (singletonBean != null) {
+            return singletonBean.getClass();
+        }
+        BeanDefinition beanDefinition = getBeanDefinition(beanName);
+        if (beanDefinition != null) {
+            return beanDefinition.getBeanClass();
+        }
+        return null;
+    }
+
     protected abstract BeanDefinition getBeanDefinition(String beanName);
 
     protected List<BeanPostProcessor> getBeanPostProcessorList() {
@@ -135,6 +148,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     }
 
     private Object initializeBean(String beanName, BeanDefinition beanDefinition, Object beanInstance) {
+        invokeAwareMethods(beanInstance);
         Object result = beanInstance;
         for (BeanPostProcessor beanPostProcessor : getBeanPostProcessorList()) {
             Object currentBean = beanPostProcessor.postProcessBeforeInitialization(result, beanName);
@@ -144,6 +158,12 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             result = beanPostProcessor.postProcessAfterInitialization(currentBean, beanName);
         }
         return result;
+    }
+
+    private void invokeAwareMethods(Object beanInstance) {
+        if (beanInstance instanceof BeanFactoryAware) {
+            ((BeanFactoryAware) beanInstance).setBeanFactory(this);
+        }
     }
 
 }

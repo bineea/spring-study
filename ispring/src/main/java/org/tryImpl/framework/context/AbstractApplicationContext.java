@@ -18,6 +18,11 @@ public abstract class AbstractApplicationContext implements BeanFactory {
         return getBeanFactory().getBean(beanName);
     }
 
+    @Override
+    public Class<?> getType(String beanName) {
+        return getBeanFactory().getType(beanName);
+    }
+
     protected final void refresh() {
         synchronized (this.keepSafeOperation) {
             BeanFactory beanFactory = refreshBeanFactory();

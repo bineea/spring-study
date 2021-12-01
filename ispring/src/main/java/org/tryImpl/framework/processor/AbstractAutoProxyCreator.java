@@ -1,9 +1,14 @@
 package org.tryImpl.framework.processor;
 
+import org.tryImpl.framework.context.BeanFactory;
+import org.tryImpl.framework.context.BeanFactoryAware;
+
 import java.util.Collections;
 import java.util.List;
 
-public abstract class AbstractAutoProxyCreator implements InstantiationAwareBeanPostProcessor{
+public abstract class AbstractAutoProxyCreator implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
+
+    private BeanFactory beanFactory;
 
     @Override
     public Object postProcessBeforeInstantiation(String beanName, Class<?> beanClass) {
@@ -24,6 +29,11 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
             return wrapIfNecessary(bean, beanName);
         }
         return bean;
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
     private boolean shouldSkip(String beanName, Class<?> beanClass) {

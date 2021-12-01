@@ -1,11 +1,8 @@
 package org.tryImpl.framework.context;
 
-import org.tryImpl.framework.annotation.*;
-import org.tryImpl.framework.processor.BeanDefinitionRegistryPostProcessor;
+import org.tryImpl.framework.annotation.Configuration;
 import org.tryImpl.framework.processor.ConfigurationClassPostProcessor;
 
-import java.io.File;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
