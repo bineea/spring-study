@@ -1,5 +1,6 @@
 package org.tryImpl.framework.processor;
 
+import org.tryImpl.framework.aop.Advisor;
 import org.tryImpl.framework.context.BeanFactory;
 import org.tryImpl.framework.context.BeanFactoryAware;
 
