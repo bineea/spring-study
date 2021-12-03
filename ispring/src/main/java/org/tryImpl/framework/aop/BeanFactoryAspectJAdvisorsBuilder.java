@@ -37,9 +37,12 @@ public class BeanFactoryAspectJAdvisorsBuilder {
                     String[] beanNamesForType = beanFactory.getBeanNamesForType(Object.class);
                     for (String beanName : beanNamesForType) {
                         Class<?> beanType = beanFactory.getType(beanName);
-                        if (beanType.isAnnotationPresent(Aspect.class)) {
+                        if (beanType != null && beanType.isAnnotationPresent(Aspect.class)) {
                             List<Advisor> classAdvisors = aspectJAdvisorFactory.getAdvisors(beanType);
-                            advisors.addAll(classAdvisors);
+                            if (classAdvisors != null && !classAdvisors.isEmpty()) {
+                                advisorsCache.put(beanName, classAdvisors);
+                                advisors.addAll(classAdvisors);
+                            }
                         }
                     }
                 }
