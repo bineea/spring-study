@@ -10,5 +10,5 @@ package org.tryImpl.framework.aop;
  */
 public interface ExpressionPointcut extends Pointcut {
 
-    String getExpressPointcut();
+    String getExpression();
 }

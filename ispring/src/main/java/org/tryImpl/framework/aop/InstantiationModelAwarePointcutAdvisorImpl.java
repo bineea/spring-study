@@ -1,5 +1,7 @@
 package org.tryImpl.framework.aop;
 
+import java.lang.reflect.Method;
+
 /**
  * Title: InstantiationModelAwarePointcutAdvisorImpl<br>
  * Description:  <br>
@@ -10,16 +12,27 @@ package org.tryImpl.framework.aop;
  */
 public class InstantiationModelAwarePointcutAdvisorImpl implements PointcutAdvisor{
 
+    private Pointcut pointcut;
+    private Advice advice;
+    private AspectJAdviceFactory aspectJAdviceFactory;
+
+    public InstantiationModelAwarePointcutAdvisorImpl(AspectJExpressionPointcut aspectJExpressionPointcut, Method method, AspectJAdviceFactory aspectJAdviceFactory) {
+        this.pointcut = aspectJExpressionPointcut;
+        this.advice = this.initializationAdvice(aspectJExpressionPointcut, method);
+        this.aspectJAdviceFactory = aspectJAdviceFactory;
+    }
+
     @Override
     public Pointcut getPointcut() {
-        return null;
+        return this.pointcut;
     }
 
     @Override
     public Advice getAdvice() {
+        return this.advice;
+    }
 
-
-
-        return null;
+    private Advice initializationAdvice(AspectJExpressionPointcut aspectJExpressionPointcut, Method method) {
+        return aspectJAdviceFactory.getAdvice(aspectJExpressionPointcut, method);
     }
 }
