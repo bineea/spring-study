@@ -2,6 +2,7 @@ package com.example.IspringTest.config;
 
 import org.tryImpl.framework.annotation.ComponentScan;
 import org.tryImpl.framework.annotation.Configuration;
+import org.tryImpl.framework.annotation.EnableAspectJAutoProxy;
 
 /**
  * Title: AppConfig<br>
@@ -13,6 +14,7 @@ import org.tryImpl.framework.annotation.Configuration;
  */
 
 @Configuration
+@EnableAspectJAutoProxy
 @ComponentScan({"com.example.IspringTest"})
 public class AppConfig {
 }

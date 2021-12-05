@@ -1,6 +1,7 @@
 package org.tryImpl.framework.context;
 
 import org.tryImpl.framework.processor.BeanDefinitionRegistryPostProcessor;
+import org.tryImpl.framework.processor.BeanPostProcessor;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +26,7 @@ public abstract class AbstractApplicationContext implements BeanFactory {
 
     protected final void refresh() {
         synchronized (this.keepSafeOperation) {
-            BeanFactory beanFactory = refreshBeanFactory();
+            ConfigurableListableBeanFactory beanFactory = refreshBeanFactory();
             invokeBeanFactoryPostProcessor(beanFactory);
             registerBeanPostProcessor(beanFactory);
             createSingletonBean(beanFactory);
@@ -35,17 +36,17 @@ public abstract class AbstractApplicationContext implements BeanFactory {
     /**
      * 更新beanFactory
      */
-    protected BeanFactory refreshBeanFactory() {
+    protected ConfigurableListableBeanFactory refreshBeanFactory() {
         return getBeanFactory();
     }
 
     /**
      * 执行beanFactoryPostProcessor
      */
-    protected void invokeBeanFactoryPostProcessor(BeanFactory beanFactory) {
-        String[] beanNames = getBeanFactory().getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class);
+    protected void invokeBeanFactoryPostProcessor(ConfigurableListableBeanFactory beanFactory) {
+        String[] beanNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class);
         for (String beanName : beanNames) {
-            BeanDefinitionRegistryPostProcessor bean = (BeanDefinitionRegistryPostProcessor) getBeanFactory().getBean(beanName);
+            BeanDefinitionRegistryPostProcessor bean = (BeanDefinitionRegistryPostProcessor) beanFactory.getBean(beanName);
             bean.postProcessBeanDefinitionRegistry((BeanDefinitionRegistry) getBeanFactory());
         }
     }
@@ -53,15 +54,19 @@ public abstract class AbstractApplicationContext implements BeanFactory {
     /**
      * 解析并注册beanPostProcessor
      */
-    protected void registerBeanPostProcessor(BeanFactory beanFactory) {
-
+    protected void registerBeanPostProcessor(ConfigurableListableBeanFactory beanFactory) {
+        String[] beanNames = beanFactory.getBeanNamesForType(BeanPostProcessor.class);
+        for (String beanName : beanNames) {
+            BeanPostProcessor beanPostProcessor = (BeanPostProcessor) beanFactory.getBean(beanName);
+            beanFactory.addBeanPostPorcessor(beanPostProcessor);
+        }
     }
 
     /**
      * 创建单例bean
      */
-    protected void createSingletonBean(BeanFactory beanFactory) {
-
+    protected void createSingletonBean(ConfigurableListableBeanFactory beanFactory) {
+        beanFactory.preInstantiateSingletons();
     }
 
 }

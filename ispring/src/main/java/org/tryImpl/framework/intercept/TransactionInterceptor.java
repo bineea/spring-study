@@ -1,13 +1,11 @@
 package org.tryImpl.framework.intercept;
 
-import java.lang.reflect.Method;
+import org.tryImpl.framework.aop.MethodInvocation;
 
 public class TransactionInterceptor implements MethodInterceptor {
 
     @Override
-    public Object invoke(Method method, Object[] args) throws Throwable {
-
-
+    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
         return null;
     }
 }

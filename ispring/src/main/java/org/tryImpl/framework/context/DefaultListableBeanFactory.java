@@ -40,4 +40,11 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory implements C
         }
         return beanNameResult.toArray(new String[beanNameResult.size()]);
     }
+
+    @Override
+    public void preInstantiateSingletons() {
+        for (String beanName : beanDefinitionNameList) {
+            this.getBean(beanName);
+        }
+    }
 }

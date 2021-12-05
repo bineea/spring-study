@@ -5,8 +5,7 @@ import org.tryImpl.framework.annotation.Around;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class AspectJExpressionPointcut implements ExpressionPointcut, ClassFilter, MethodMatcher {
 
@@ -100,22 +99,31 @@ public class AspectJExpressionPointcut implements ExpressionPointcut, ClassFilte
 
     private boolean match(Method method) {
         if (PointcutType.EXECUTION.equals(pointcutType)) {
-            StringBuilder pointcutExpBuilder = new StringBuilder();
-            pointcutExpBuilder.append(pointcutType.getPointcutPrimitive());
-            pointcutExpBuilder.append("(");
-            pointcutExpBuilder.append(method.getDeclaringClass().getName());
-            pointcutExpBuilder.append("(");
-            Type[] parameterTypes = method.getGenericParameterTypes();
-            for (int i=0; i<parameterTypes.length; i++) {
-                pointcutExpBuilder.append(parameterTypes[i].getTypeName());
-                if (i < parameterTypes.length -1 ) {
-                    pointcutExpBuilder.append(",");
-                }
+            List<Class<?>> methodClassList = new ArrayList<>();
+            methodClassList.add(method.getDeclaringClass());
+            if (!method.getDeclaringClass().isInterface()) {
+                methodClassList.addAll(new ArrayList<>(Arrays.asList(method.getDeclaringClass().getInterfaces())));
             }
-            pointcutExpBuilder.append(")");
-            pointcutExpBuilder.append(")");
-            if (pointcutExpBuilder.toString().equals(pointExpression)) {
-                return true;
+            for (Class<?> methodClass : methodClassList) {
+                StringBuilder pointcutExpBuilder = new StringBuilder();
+                pointcutExpBuilder.append(pointcutType.getPointcutPrimitive());
+                pointcutExpBuilder.append("(");
+                pointcutExpBuilder.append(methodClass.getName());
+                pointcutExpBuilder.append(".");
+                pointcutExpBuilder.append(method.getName());
+                pointcutExpBuilder.append("(");
+                Type[] parameterTypes = method.getGenericParameterTypes();
+                for (int i=0; i<parameterTypes.length; i++) {
+                    pointcutExpBuilder.append(parameterTypes[i].getTypeName());
+                    if (i < parameterTypes.length -1 ) {
+                        pointcutExpBuilder.append(",");
+                    }
+                }
+                pointcutExpBuilder.append(")");
+                pointcutExpBuilder.append(")");
+                if (pointcutExpBuilder.toString().equals(pointExpression)) {
+                    return true;
+                }
             }
         } else if (PointcutType.ANNOTATION.equals(pointcutType)) {
             for (Annotation annotation : method.getDeclaredAnnotations()) {

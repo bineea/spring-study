@@ -1,6 +1,7 @@
 package com.example.IspringTest;
 
 import com.example.IspringTest.config.AppConfig;
+import com.example.IspringTest.service.HelloworldService;
 import org.tryImpl.framework.context.AnnotationConfigApplicationContext;
 
 /**
@@ -16,5 +17,8 @@ public class IspringTestManager {
     public static void main(String[] args) {
         AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
         System.out.println(annotationConfigApplicationContext);
+        HelloworldService helloworldService = (HelloworldService) annotationConfigApplicationContext.getBean("helloworldServiceImpl");
+        System.out.println(helloworldService);
+        System.out.println(helloworldService.sayHelloworld());
     }
 }

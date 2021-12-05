@@ -38,8 +38,9 @@ public class BeanFactoryAspectJAdvisorsBuilder {
                     for (String beanName : beanNamesForType) {
                         Class<?> beanType = beanFactory.getType(beanName);
                         if (beanType != null && beanType.isAnnotationPresent(Aspect.class)) {
-                            List<Advisor> classAdvisors = aspectJAdvisorFactory.getAdvisors(beanType);
+                            List<Advisor> classAdvisors = aspectJAdvisorFactory.getAdvisors(beanType, beanFactory, beanName);
                             if (classAdvisors != null && !classAdvisors.isEmpty()) {
+                                aspectNames.add(beanName);
                                 advisorsCache.put(beanName, classAdvisors);
                                 advisors.addAll(classAdvisors);
                             }
@@ -52,8 +53,11 @@ public class BeanFactoryAspectJAdvisorsBuilder {
         if (aspectNames.isEmpty()) {
             return Collections.emptyList();
         } else {
-            //TODO 映射封装advisor
-            return null;
+            List<Advisor> advisors = new ArrayList<>();
+            for (String aspectName : aspectNames) {
+                advisors.addAll(advisorsCache.get(aspectName));
+            }
+            return advisors;
         }
     }
 

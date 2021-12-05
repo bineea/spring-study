@@ -1,8 +1,8 @@
 package org.tryImpl.framework.intercept;
 
-import java.lang.reflect.Method;
+import org.tryImpl.framework.aop.MethodInvocation;
 
 public interface MethodInterceptor {
 
-    Object invoke(Method method, Object[] args) throws Throwable;
+    Object invoke(MethodInvocation methodInvocation) throws Throwable;
 }

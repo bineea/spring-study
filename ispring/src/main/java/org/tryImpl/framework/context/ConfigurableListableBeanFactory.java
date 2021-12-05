@@ -9,4 +9,6 @@ package org.tryImpl.framework.context;
  * @date: 2021/11/26 10:30
  */
 public interface ConfigurableListableBeanFactory extends ListableBeanFactory, ConfigurableBeanFactory {
+
+    void preInstantiateSingletons();
 }

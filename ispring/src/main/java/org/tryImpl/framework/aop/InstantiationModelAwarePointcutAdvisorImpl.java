@@ -1,5 +1,7 @@
 package org.tryImpl.framework.aop;
 
+import org.tryImpl.framework.context.ListableBeanFactory;
+
 import java.lang.reflect.Method;
 
 /**
@@ -15,11 +17,15 @@ public class InstantiationModelAwarePointcutAdvisorImpl implements PointcutAdvis
     private Pointcut pointcut;
     private Advice advice;
     private AspectJAdviceFactory aspectJAdviceFactory;
+    private ListableBeanFactory beanFactory;
+    private String beanName;
 
-    public InstantiationModelAwarePointcutAdvisorImpl(AspectJExpressionPointcut aspectJExpressionPointcut, Method method, AspectJAdviceFactory aspectJAdviceFactory) {
+    public InstantiationModelAwarePointcutAdvisorImpl(AspectJExpressionPointcut aspectJExpressionPointcut, Method method, AspectJAdviceFactory aspectJAdviceFactory, ListableBeanFactory beanFactory, String beanName) {
         this.pointcut = aspectJExpressionPointcut;
-        this.advice = this.initializationAdvice(aspectJExpressionPointcut, method);
         this.aspectJAdviceFactory = aspectJAdviceFactory;
+        this.beanFactory = beanFactory;
+        this.beanName = beanName;
+        this.advice = this.initializationAdvice(aspectJExpressionPointcut, method);
     }
 
     @Override
@@ -33,6 +39,6 @@ public class InstantiationModelAwarePointcutAdvisorImpl implements PointcutAdvis
     }
 
     private Advice initializationAdvice(AspectJExpressionPointcut aspectJExpressionPointcut, Method method) {
-        return aspectJAdviceFactory.getAdvice(aspectJExpressionPointcut, method);
+        return aspectJAdviceFactory.getAdvice(aspectJExpressionPointcut, method, beanFactory, beanName);
     }
 }

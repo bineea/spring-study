@@ -1,9 +1,13 @@
 package org.tryImpl.framework.processor;
 
 import org.tryImpl.framework.aop.Advisor;
+import org.tryImpl.framework.aop.JdkDynamicAopProxy;
+import org.tryImpl.framework.aop.Pointcut;
+import org.tryImpl.framework.aop.PointcutAdvisor;
 import org.tryImpl.framework.context.BeanFactory;
 import org.tryImpl.framework.context.BeanFactoryAware;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,15 +17,11 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
 
     @Override
     public Object postProcessBeforeInstantiation(String beanName, Class<?> beanClass) {
-        //解析切点及方法
-        //返回代理对象
-        //FIXME 待完善处理逻辑
+        //默认所有bean对象均需要创建代理对象
         if (shouldSkip(beanName, beanClass)) {
             return null;
         }
-        Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName);
-        Object proxy = createProxy(beanClass, beanName, specificInterceptors);
-        return proxy;
+        return null;
     }
 
     @Override
@@ -38,17 +38,6 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
     }
 
     private boolean shouldSkip(String beanName, Class<?> beanClass) {
-        //TODO 待完善处理逻辑
-
-        //获取advisor
-        //所有aspect注册的pointcut
-        List<Advisor> candidateAdvisors = this.findCandidateAdvisors();
-        for (Advisor advisor : candidateAdvisors) {
-            //TODO
-        }
-
-        //匹配当前处理类
-
         return false;
     }
 
@@ -58,14 +47,35 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
 
     protected Object wrapIfNecessary(Object bean, String beanName) {
         Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName);
-        if(specificInterceptors != null) {
-            Object proxy = createProxy(bean.getClass(), beanName, specificInterceptors);
+        if(specificInterceptors != null && specificInterceptors.length > 0) {
+            Object proxy = createProxy(bean.getClass(), beanName, specificInterceptors, bean);
             return proxy;
         }
         return bean;
     }
 
-    protected abstract Object[] getAdvicesAndAdvisorsForBean(Class<?> clazz, String beanName);
+    protected Object[] getAdvicesAndAdvisorsForBean(Class<?> clazz, String beanName) {
+        List<Advisor> advisors = this.findCandidateAdvisors();
+        List<Advisor> eligibleAdvisors = new ArrayList<>();
+        for (Advisor advisor : advisors) {
+            if (advisor instanceof PointcutAdvisor) {
+                Pointcut pointcut = ((PointcutAdvisor) advisor).getPointcut();
+                if (pointcut.getClassFilter().matches(clazz)) {
+                    eligibleAdvisors.addAll(advisors);
+                }
+            }
+        }
+        return eligibleAdvisors.isEmpty() ? null : eligibleAdvisors.toArray();
+    }
 
-    protected abstract Object createProxy(Class<?> clazz, String beanName, Object[] specificInterceptors);
+    protected Object createProxy(Class<?> clazz, String beanName, Object[] specificInterceptors, Object targetBeanObj) {
+        List<Advisor> advisors = new ArrayList<>();
+        for (Object specificInterceptor : specificInterceptors) {
+            if (specificInterceptor instanceof Advisor) {
+                advisors.add((Advisor) specificInterceptor);
+            }
+        }
+        Object proxyInstance = new JdkDynamicAopProxy(advisors, targetBeanObj).getProxy(clazz.getClassLoader(), clazz.getInterfaces());
+        return proxyInstance;
+    }
 }

@@ -10,12 +10,12 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 
 public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor {
+
+    private Set<ComponentScan> componentScanSet = new HashSet<>();
 
     /**
      * 解析配置类，注册beanDefinition
@@ -23,9 +23,11 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
      */
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
-        Class<? extends BeanDefinitionRegistry> registryClass = registry.getClass();
-
+        List<String> beanDefinitionNames = new ArrayList<>();
         for (String beanName : registry.getBeanDefinitionNames()) {
+            beanDefinitionNames.add(beanName);
+        }
+        for (String beanName : beanDefinitionNames) {
             this.parse(registry, registry.getBeanDefinition(beanName).getBeanClass());
         }
     }
@@ -35,10 +37,16 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         //解析componentScan注解
         if (clazz.isAnnotationPresent(ComponentScan.class)) {
             ComponentScan componentScan = clazz.getAnnotation(ComponentScan.class);
+            if (componentScanSet.contains(componentScan)) {
+                return;
+            }
+            componentScanSet.add(componentScan);
             String[] scanPaths = componentScan.value();
             Set<Class<?>> beanClasses = this.scanBeanClass(scanPaths);
             for (Class<?> beanClass : beanClasses) {
                 if (beanClass.isAnnotationPresent(Configuration.class)) {
+                    this.parse(registry, beanClass);
+                } else if (beanClass.isAnnotationPresent(ComponentScan.class)) {
                     this.parse(registry, beanClass);
                 } else if (beanClass.isAnnotationPresent(Component.class)){
                     String beanName = beanClass.getAnnotation(Component.class).value();
@@ -46,8 +54,8 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
                         int index = beanClass.getName().lastIndexOf(".");
                         beanName = beanClass.getName().substring(index+1,index+2).toLowerCase() + beanClass.getName().substring(index+2);
                     }
-                    String scope = beanClass.getAnnotation(Scope.class).scope();
-                    boolean lazy = beanClass.getAnnotation(Lazy.class).lazy();
+                    String scope = beanClass.getAnnotation(Scope.class) == null ? ScopeEnum.singleton.name() : beanClass.getAnnotation(Scope.class).scope();
+                    boolean lazy = beanClass.getAnnotation(Lazy.class) == null ? false : beanClass.getAnnotation(Lazy.class).lazy();
                     BeanDefinition beanDefinition = new BeanDefinition();
                     beanDefinition.setBeanName(beanName);
                     beanDefinition.setScope(ScopeEnum.prototype.name().equals(scope) ? ScopeEnum.prototype : ScopeEnum.singleton);
@@ -96,32 +104,35 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             scanPath = scanPath.replaceAll("\\.", "/");
             URL classUrl = ClassLoader.getSystemClassLoader().getResource(scanPath);
             File classUrlFile = new File(classUrl.getFile());
-            if(classUrlFile.isFile() && classUrlFile.getAbsolutePath().endsWith(".class")) {
-                beanClassSet.add(scanFile2Class(classUrlFile));
-            } else if(classUrlFile.isDirectory()) {
-                for(File classFile : classUrlFile.listFiles()) {
-                    if(classFile.isFile() && classFile.getAbsolutePath().endsWith(".class")) {
-                        beanClassSet.add(scanFile2Class(classFile));
-                    }
-                }
-            }
+            beanClassSet.addAll(scanFile2Class(classUrlFile));
         }
         return beanClassSet;
     }
 
-    private Class<?> scanFile2Class(File classUrlFile) {
-        String basePath = this.formatPath(AnnotationConfigApplicationContext.class.getClassLoader().getResource("").getPath());
-        String fileAbsolutePath = this.formatPath(classUrlFile.getAbsolutePath());
-        String fileName = fileAbsolutePath.substring(fileAbsolutePath.lastIndexOf(basePath)+basePath.length(), fileAbsolutePath.lastIndexOf(".class"));
-        fileName = fileName.replace(File.separatorChar, '.');
-        Class<?> clazz = null;
-        try {
-            clazz = ClassLoader.getSystemClassLoader().loadClass(fileName);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+    private Set<Class<?>> scanFile2Class(File classUrlFile) {
+        Set<Class<?>> beanClassSet = new HashSet<>();
+        if(classUrlFile.isFile() && classUrlFile.getAbsolutePath().endsWith(".class")) {
+            String basePath = this.formatPath(AnnotationConfigApplicationContext.class.getClassLoader().getResource("").getPath());
+            String fileAbsolutePath = this.formatPath(classUrlFile.getAbsolutePath());
+            String fileName = fileAbsolutePath.substring(fileAbsolutePath.lastIndexOf(basePath)+basePath.length(), fileAbsolutePath.lastIndexOf(".class"));
+            fileName = fileName.replace(File.separatorChar, '.');
+            Class<?> clazz = null;
+            try {
+                clazz = ClassLoader.getSystemClassLoader().loadClass(fileName);
+                beanClassSet.add(clazz);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+            return beanClassSet;
+        } else if(classUrlFile.isDirectory()) {
+            for(File classFile : classUrlFile.listFiles()) {
+                beanClassSet.addAll(scanFile2Class(classFile));
+            }
+            return beanClassSet;
+        } else {
+            return beanClassSet;
         }
-        return clazz;
     }
 
     private String formatPath(String path) {
@@ -142,7 +153,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     private void processImports(BeanDefinitionRegistry registry, Class<?> clazz) {
         Set<Class<?>> imports = this.getImports(clazz);
         for (Class<?> importClass : imports) {
-            if (importClass.isAssignableFrom(ImportBeanDefinitionRegistrar.class)) {
+            if (ImportBeanDefinitionRegistrar.class.isAssignableFrom(importClass)) {
                 try {
                     //手动初始化，执行beanDefinition的注册
                     ImportBeanDefinitionRegistrar importInstance = (ImportBeanDefinitionRegistrar) importClass.getDeclaredConstructor().newInstance();
@@ -169,7 +180,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             } else if (annotation.annotationType().getName().contains("java.lang.annotation")) {
                 continue;
             } else {
-                this.collectImport(importClasses, annotation.getClass());
+                this.collectImport(importClasses, annotation.annotationType());
             }
         }
     }

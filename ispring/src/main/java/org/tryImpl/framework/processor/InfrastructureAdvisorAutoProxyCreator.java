@@ -6,9 +6,4 @@ public class InfrastructureAdvisorAutoProxyCreator extends AbstractAutoProxyCrea
     protected Object[] getAdvicesAndAdvisorsForBean(Class<?> clazz, String beanName) {
         return new Object[0];
     }
-
-    @Override
-    protected Object createProxy(Class<?> clazz, String beanName, Object[] specificInterceptors) {
-        return null;
-    }
 }

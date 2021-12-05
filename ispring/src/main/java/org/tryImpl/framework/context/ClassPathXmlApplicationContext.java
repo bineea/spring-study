@@ -24,7 +24,7 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     }
 
     @Override
-    protected void invokeBeanFactoryPostProcessor(BeanFactory beanFactory) {
+    protected void invokeBeanFactoryPostProcessor(ConfigurableListableBeanFactory beanFactory) {
         //TODO
     }
 

@@ -5,6 +5,7 @@ import org.tryImpl.framework.aop.BeanFactoryAspectJAdvisorsBuilder;
 import org.tryImpl.framework.context.BeanFactory;
 import org.tryImpl.framework.context.ConfigurableListableBeanFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCreator {
@@ -15,19 +16,15 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCre
     protected List<Advisor> findCandidateAdvisors() {
         List<Advisor> candidateAdvisors = super.findCandidateAdvisors();
         if (candidateAdvisors == null ||  candidateAdvisors.isEmpty()) {
-            candidateAdvisors.addAll(beanFactoryAspectJAdvisorsBuilder.buildAspectJAdvisors());
+//            List<Advisor> advisors = beanFactoryAspectJAdvisorsBuilder.buildAspectJAdvisors();
+//            if (advisors != null && !advisors.isEmpty()) {
+//                //执行Collections.emptyList()，并不能直接操作add；因为Collections.emptyList()没有进行初始化操作
+//                candidateAdvisors = new ArrayList<>();
+//                candidateAdvisors.addAll(advisors);
+//            }
+            return beanFactoryAspectJAdvisorsBuilder.buildAspectJAdvisors();
         }
         return candidateAdvisors;
-    }
-
-    @Override
-    protected Object[] getAdvicesAndAdvisorsForBean(Class<?> clazz, String beanName) {
-        return new Object[0];
-    }
-
-    @Override
-    protected Object createProxy(Class<?> clazz, String beanName, Object[] specificInterceptors) {
-        return null;
     }
 
     @Override
