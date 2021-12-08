@@ -153,7 +153,10 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     private void processImports(BeanDefinitionRegistry registry, Class<?> clazz) {
         Set<Class<?>> imports = this.getImports(clazz);
         for (Class<?> importClass : imports) {
-            if (ImportBeanDefinitionRegistrar.class.isAssignableFrom(importClass)) {
+            if (ImportSelector.class.isAssignableFrom(importClass)) {
+                //TODO
+                processImports(registry, importClass);
+            } else if (ImportBeanDefinitionRegistrar.class.isAssignableFrom(importClass)) {
                 try {
                     //手动初始化，执行beanDefinition的注册
                     ImportBeanDefinitionRegistrar importInstance = (ImportBeanDefinitionRegistrar) importClass.getDeclaredConstructor().newInstance();
@@ -162,6 +165,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
+            } else {
+                //TODO
+                parse(registry, clazz);
             }
         }
     }
