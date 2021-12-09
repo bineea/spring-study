@@ -33,8 +33,16 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     }
 
     private void parse(BeanDefinitionRegistry registry, Class<?> clazz) {
+        if (this.shouldSkip(clazz)) {
+            return;
+        }
+        this.processConfigurationClass(registry, clazz);
+    }
+
+    private void processConfigurationClass(BeanDefinitionRegistry registry, Class<?> clazz) {
 
         //解析componentScan注解
+        //FIXME 应该单独处理componentScan注解的解析，递归解析componentScan注解与递归解析configuration注解需要分别处理
         if (clazz.isAnnotationPresent(ComponentScan.class)) {
             ComponentScan componentScan = clazz.getAnnotation(ComponentScan.class);
             if (componentScanSet.contains(componentScan)) {
@@ -98,6 +106,10 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
     }
 
+    private boolean shouldSkip(Class<?> clazz) {
+        return false;
+    }
+
     private Set<Class<?>> scanBeanClass(String[] scanPaths) {
         Set<Class<?>> beanClassSet = new HashSet<>();
         for(String scanPath : scanPaths) {
@@ -154,19 +166,26 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         Set<Class<?>> imports = this.getImports(clazz);
         for (Class<?> importClass : imports) {
             if (ImportSelector.class.isAssignableFrom(importClass)) {
-                //TODO
-                processImports(registry, importClass);
+                try {
+                    ImportSelector importSelector = (ImportSelector) importClass.getDeclaredConstructor().newInstance();
+                    for (String importClassName : importSelector.selectImports()) {
+                        Class<?> importSelectClass = Class.forName(importClassName);
+                        processImports(registry, importSelectClass);
+                    }
+                } catch (Exception e)  {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
             } else if (ImportBeanDefinitionRegistrar.class.isAssignableFrom(importClass)) {
                 try {
                     //手动初始化，执行beanDefinition的注册
                     ImportBeanDefinitionRegistrar importInstance = (ImportBeanDefinitionRegistrar) importClass.getDeclaredConstructor().newInstance();
                     importInstance.registerBeanDefinitions(registry);
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
             } else {
-                //TODO
                 parse(registry, clazz);
             }
         }
