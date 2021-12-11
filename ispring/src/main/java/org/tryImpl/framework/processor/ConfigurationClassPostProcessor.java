@@ -9,6 +9,7 @@ import org.tryImpl.framework.context.ScopeEnum;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -40,9 +41,8 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     }
 
     private void processConfigurationClass(BeanDefinitionRegistry registry, Class<?> clazz) {
-
         //解析componentScan注解
-        //FIXME 应该单独处理componentScan注解的解析，递归解析componentScan注解与递归解析configuration注解需要分别处理
+        //spring只解析Configuration注解标注配置的componentScan注解
         if (clazz.isAnnotationPresent(ComponentScan.class)) {
             ComponentScan componentScan = clazz.getAnnotation(ComponentScan.class);
             if (componentScanSet.contains(componentScan)) {
@@ -52,16 +52,18 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             String[] scanPaths = componentScan.value();
             Set<Class<?>> beanClasses = this.scanBeanClass(scanPaths);
             for (Class<?> beanClass : beanClasses) {
-                if (beanClass.isAnnotationPresent(Configuration.class)) {
-                    this.parse(registry, beanClass);
-                } else if (beanClass.isAnnotationPresent(ComponentScan.class)) {
-                    this.parse(registry, beanClass);
-                } else if (beanClass.isAnnotationPresent(Component.class)){
-                    String beanName = beanClass.getAnnotation(Component.class).value();
-                    if (beanName == null || beanName.length() <= 0) {
-                        int index = beanClass.getName().lastIndexOf(".");
-                        beanName = beanClass.getName().substring(index+1,index+2).toLowerCase() + beanClass.getName().substring(index+2);
+                int index = beanClass.getName().lastIndexOf(".");
+                String beanName = beanClass.getName().substring(index+1,index+2).toLowerCase() + beanClass.getName().substring(index+2);
+                if (beanClass.isAnnotationPresent(Component.class)) {
+                    String customBeanName = beanClass.getAnnotation(Component.class).value();
+                    if (customBeanName != null && customBeanName.trim().length() > 0) {
+                        beanName = customBeanName;
                     }
+                }
+                if (registry.getBeanDefinition(beanName) != null) {
+                    continue;
+                }
+                if (beanClass.isAnnotationPresent(Configuration.class) || beanClass.isAnnotationPresent(Component.class)) {
                     String scope = beanClass.getAnnotation(Scope.class) == null ? ScopeEnum.singleton.name() : beanClass.getAnnotation(Scope.class).scope();
                     boolean lazy = beanClass.getAnnotation(Lazy.class) == null ? false : beanClass.getAnnotation(Lazy.class).lazy();
                     BeanDefinition beanDefinition = new BeanDefinition();
@@ -71,6 +73,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
                     beanDefinition.setBeanClass(beanClass);
                     registry.registerBeanDefinition(beanName, beanDefinition);
                 }
+                if (beanClass.isAnnotationPresent(Configuration.class)) {
+                    this.parse(registry, beanClass);
+                }
             }
         }
 
@@ -78,10 +83,16 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         processImports(registry, clazz);
 
         //解析bean注解
-//        Method[] methods = clazz.getDeclaredMethods();
-//        for (Method method : methods) {
-//            if (method.isAnnotationPresent(Bean.class)) {
-//                try {
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(Bean.class)) {
+                try {
+                    //TODO 这里只是解析了bean的方法信息
+                    //TODO 1.方法名称设置为beanName
+                    //TODO 2.设置beanDefinition的factoryBeanName属性为配置类的beanName(appConfig)
+                    //TODO 3.设置beanDefinition的factoryMethodName属性为bean method(getCreateHelloworldManager)
+                    //TODO 4.设置beanDefinition为org.springframework.context.annotation.ConfigurationClassBeanDefinitionReader.ConfigurationClassBeanDefinition
+
 //                    Object methodBeanObject = method.invoke(clazz.getDeclaredConstructor().newInstance(), null);
 //                    Class<?> beanClass = method.getReturnType();
 //                    String beanName = beanClass.getAnnotation(Bean.class).name();
@@ -97,12 +108,12 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 //                    beanDefinition.setLazy(lazy);
 //                    beanDefinition.setBeanClass(beanClass);
 //                    registry.registerBeanDefinition(beanName, beanDefinition);
-//                } catch (IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
-//                    e.printStackTrace();
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+            }
+        }
 
     }
 
