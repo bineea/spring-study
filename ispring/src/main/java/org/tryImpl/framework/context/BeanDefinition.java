@@ -7,6 +7,9 @@ public class BeanDefinition {
     private boolean lazy;
     private Class<?> beanClass;
 
+    private String factoryBeanName;
+    private String factoryMethodName;
+
     public String getBeanName() {
         return beanName;
     }
@@ -37,5 +40,21 @@ public class BeanDefinition {
 
     public void setBeanClass(Class<?> beanClass) {
         this.beanClass = beanClass;
+    }
+
+    public String getFactoryBeanName() {
+        return factoryBeanName;
+    }
+
+    public void setFactoryBeanName(String factoryBeanName) {
+        this.factoryBeanName = factoryBeanName;
+    }
+
+    public String getFactoryMethodName() {
+        return factoryMethodName;
+    }
+
+    public void setFactoryMethodName(String factoryMethodName) {
+        this.factoryMethodName = factoryMethodName;
     }
 }

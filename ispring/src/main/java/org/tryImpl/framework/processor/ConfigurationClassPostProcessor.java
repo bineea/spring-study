@@ -220,4 +220,25 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             }
         }
     }
+
+    class ConfigurationClassBeanDefinition extends BeanDefinition {
+        private String methodName;
+        private String returnTypeName;
+
+        public String getMethodName() {
+            return methodName;
+        }
+
+        public void setMethodName(String methodName) {
+            this.methodName = methodName;
+        }
+
+        public String getReturnTypeName() {
+            return returnTypeName;
+        }
+
+        public void setReturnTypeName(String returnTypeName) {
+            this.returnTypeName = returnTypeName;
+        }
+    }
 }
