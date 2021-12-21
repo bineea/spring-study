@@ -29,18 +29,19 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             beanDefinitionNames.add(beanName);
         }
         for (String beanName : beanDefinitionNames) {
-            this.parse(registry, registry.getBeanDefinition(beanName).getBeanClass());
+            this.parse(registry, new ConfigurationClass(beanName, registry.getBeanDefinition(beanName).getBeanClass()));
         }
     }
 
-    private void parse(BeanDefinitionRegistry registry, Class<?> clazz) {
-        if (this.shouldSkip(clazz)) {
+    private void parse(BeanDefinitionRegistry registry, ConfigurationClass configurationClass) {
+        if (this.shouldSkip(configurationClass.getClazz())) {
             return;
         }
-        this.processConfigurationClass(registry, clazz);
+        this.processConfigurationClass(registry, configurationClass);
     }
 
-    private void processConfigurationClass(BeanDefinitionRegistry registry, Class<?> clazz) {
+    private void processConfigurationClass(BeanDefinitionRegistry registry, ConfigurationClass configurationClass) {
+        Class<?> clazz = configurationClass.getClazz();
         //解析componentScan注解
         //spring只解析Configuration注解标注配置的componentScan注解
         if (clazz.isAnnotationPresent(ComponentScan.class)) {
@@ -74,40 +75,25 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
                     registry.registerBeanDefinition(beanName, beanDefinition);
                 }
                 if (beanClass.isAnnotationPresent(Configuration.class)) {
-                    this.parse(registry, beanClass);
+                    this.parse(registry, new ConfigurationClass(beanName, beanClass));
                 }
             }
         }
 
         //解析import注解
-        processImports(registry, clazz);
+        processImports(registry, configurationClass);
 
         //解析bean注解
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             if (method.isAnnotationPresent(Bean.class)) {
                 try {
-                    //TODO 这里只是解析了bean的方法信息
-                    //TODO 1.方法名称设置为beanName
-                    //TODO 2.设置beanDefinition的factoryBeanName属性为配置类的beanName(appConfig)
-                    //TODO 3.设置beanDefinition的factoryMethodName属性为bean method(getCreateHelloworldManager)
-                    //TODO 4.设置beanDefinition为org.springframework.context.annotation.ConfigurationClassBeanDefinitionReader.ConfigurationClassBeanDefinition
-
-//                    Object methodBeanObject = method.invoke(clazz.getDeclaredConstructor().newInstance(), null);
-//                    Class<?> beanClass = method.getReturnType();
-//                    String beanName = beanClass.getAnnotation(Bean.class).name();
-//                    if (beanName == null || beanName.length() <= 0) {
-//                        int index = beanClass.getName().lastIndexOf(".");
-//                        beanName = beanClass.getName().substring(index+1,index+2).toLowerCase() + beanClass.getName().substring(index+2);
-//                    }
-//                    String scope = beanClass.getAnnotation(Scope.class).scope();
-//                    boolean lazy = beanClass.getAnnotation(Lazy.class).lazy();
-//                    BeanDefinition beanDefinition = new BeanDefinition();
-//                    beanDefinition.setBeanName(beanName);
-//                    beanDefinition.setScope(ScopeEnum.prototype.name().equals(scope) ? ScopeEnum.prototype : ScopeEnum.singleton);
-//                    beanDefinition.setLazy(lazy);
-//                    beanDefinition.setBeanClass(beanClass);
-//                    registry.registerBeanDefinition(beanName, beanDefinition);
+                    //这里只是解析了bean的方法信息
+                    //1.方法名称设置为beanName
+                    //2.设置beanDefinition的factoryBeanName属性为配置类的beanName(appConfig)
+                    //3.设置beanDefinition的factoryMethodName属性为bean method(getCreateHelloworldManager)
+                    //4.设置beanDefinition为org.springframework.context.annotation.ConfigurationClassBeanDefinitionReader.ConfigurationClassBeanDefinition
+                    this.loadBeanDefinitionsForBeanMethod(registry, configurationClass, method);
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new RuntimeException(e);
@@ -173,15 +159,15 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         return path;
     }
 
-    private void processImports(BeanDefinitionRegistry registry, Class<?> clazz) {
-        Set<Class<?>> imports = this.getImports(clazz);
+    private void processImports(BeanDefinitionRegistry registry, ConfigurationClass configurationClass) {
+        Set<Class<?>> imports = this.getImports(configurationClass.getClazz());
         for (Class<?> importClass : imports) {
             if (ImportSelector.class.isAssignableFrom(importClass)) {
                 try {
                     ImportSelector importSelector = (ImportSelector) importClass.getDeclaredConstructor().newInstance();
                     for (String importClassName : importSelector.selectImports()) {
                         Class<?> importSelectClass = Class.forName(importClassName);
-                        processImports(registry, importSelectClass);
+                        processImports(registry, new ConfigurationClass(importSelectClass));
                     }
                 } catch (Exception e)  {
                     e.printStackTrace();
@@ -197,7 +183,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
                     throw new RuntimeException(e);
                 }
             } else {
-                parse(registry, clazz);
+                parse(registry, configurationClass);
             }
         }
     }
@@ -219,6 +205,23 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
                 this.collectImport(importClasses, annotation.annotationType());
             }
         }
+    }
+
+    private void loadBeanDefinitionsForBeanMethod(BeanDefinitionRegistry registry, ConfigurationClass configurationClass, Method method) {
+        if (method.isAnnotationPresent(Bean.class)) {
+            throw new RuntimeException("");
+        }
+        String beanName = method.getDeclaredAnnotation(Bean.class).name();
+        beanName = (beanName == null || beanName.trim().length() <= 0) ? method.getName() : beanName;
+        ConfigurationClassBeanDefinition beanDef = new ConfigurationClassBeanDefinition();
+        beanDef.setMethodName(method.getName());
+        beanDef.setReturnTypeName(method.getReturnType().getName());
+        beanDef.setBeanName(beanName);
+        beanDef.setScope(ScopeEnum.singleton);
+        beanDef.setLazy(Boolean.FALSE);
+        beanDef.setFactoryBeanName(configurationClass.getBeanName());
+        beanDef.setFactoryMethodName(method.getName());
+        registry.registerBeanDefinition(beanName, beanDef);
     }
 
     class ConfigurationClassBeanDefinition extends BeanDefinition {

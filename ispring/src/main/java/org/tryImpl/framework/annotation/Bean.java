@@ -10,5 +10,6 @@ import java.lang.annotation.Target;
 //注解的生命周期：由JVM 加载，包含在类文件中，在运行时可以被获取到
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Bean {
-    String name() default "";
+
+    String name();
 }
