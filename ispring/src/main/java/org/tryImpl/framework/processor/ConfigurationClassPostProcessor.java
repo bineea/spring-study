@@ -183,6 +183,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
                     throw new RuntimeException(e);
                 }
             } else {
+                //候选类不是ImportSelector或ImportBeanDefinitionRegister，则将其作为Configuration类处理
                 parse(registry, configurationClass);
             }
         }

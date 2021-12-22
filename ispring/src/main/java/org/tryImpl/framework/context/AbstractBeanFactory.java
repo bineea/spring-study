@@ -122,6 +122,9 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     private Object createBeanInstance(BeanDefinition beanDefinition) {
         try {
+            if (beanDefinition.getFactoryMethodName() != null && beanDefinition.getFactoryMethodName().trim().length() > 0) {
+                //TODO 执行方法创建bean对象
+            }
             Object beanInstance = beanDefinition.getBeanClass().getDeclaredConstructor().newInstance();
             return beanInstance;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -166,4 +169,19 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         }
     }
 
+    /**
+     *
+     * @param paramTypes
+     * @param paramNames
+     * @return
+     */
+    private Object[] createArgumentArray(Class<?>[] paramTypes, String[] paramNames) {
+        //TODO 根据class类型和参数名称获取
+        return null;
+    }
+
+    private Object resolveAutowiredArgument() {
+        //TODO 获取方法参数信息
+        return null;
+    }
 }
