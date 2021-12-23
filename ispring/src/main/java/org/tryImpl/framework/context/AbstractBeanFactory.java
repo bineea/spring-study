@@ -170,7 +170,30 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     }
 
     /**
-     *
+     * 通过工厂方法实例化bean
+     * @param beanName
+     * @param beanDefinition
+     * @return
+     */
+    private Object instantiateUsingFactoryMethod(String beanName, BeanDefinition beanDefinition) {
+        String factoryBeanName = beanDefinition.getFactoryBeanName();
+        Object factoryBean;
+        Class<?> factoryClass;
+        if (factoryBeanName != null && factoryBeanName.trim().length() > 0) {
+            if (factoryBeanName.equals(beanName)) {
+                throw new RuntimeException("");
+            }
+            factoryBean = this.getBean(factoryBeanName);
+            factoryClass = factoryBean.getClass();
+        }
+
+
+        //TODO 实例化bean对象
+        return null;
+    }
+
+    /**
+     * 获取工厂方法所有参数
      * @param paramTypes
      * @param paramNames
      * @return
@@ -180,6 +203,10 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         return null;
     }
 
+    /**
+     * 获取参数对象
+     * @return
+     */
     private Object resolveAutowiredArgument() {
         //TODO 获取方法参数信息
         return null;
