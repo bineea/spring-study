@@ -1,11 +1,16 @@
 package org.tryImpl.framework.context;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
 import org.tryImpl.framework.annotation.Autowired;
 import org.tryImpl.framework.processor.BeanPostProcessor;
 import org.tryImpl.framework.processor.InstantiationAwareBeanPostProcessor;
+import org.tryImpl.framework.support.LocalVariableTableParameterNameDiscoverer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -181,15 +186,62 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         Class<?> factoryClass;
         if (factoryBeanName != null && factoryBeanName.trim().length() > 0) {
             if (factoryBeanName.equals(beanName)) {
-                throw new RuntimeException("");
+                throw new RuntimeException("Bean工厂与当前Bean一致");
             }
             factoryBean = this.getBean(factoryBeanName);
             factoryClass = factoryBean.getClass();
+        } else {
+            throw new RuntimeException("暂不支持静态工厂方法创建Bean对象");
+        }
+
+        Method[] rawCandidates = factoryClass.getDeclaredMethods();
+        HashSet<Method> candidateSet = new HashSet<>();
+        for (Method candidate : rawCandidates) {
+            //根据方法名称过滤方法对象，因为JAVA方法存在重载，也就意味着同一个方法名称可以对应多个参数不同的方法
+            if (candidate.getName().equals(beanDefinition.getFactoryMethodName())) {
+                candidateSet.add(candidate);
+            }
+        }
+
+        for (Method candidate : candidateSet) {
+            Class<?>[] parameterTypes = candidate.getParameterTypes();
+            String[] paramNames = getParameterNames(candidate);
+
+            ArgumentsHolder argumentsHolder = this.createArgumentArray(parameterTypes, paramNames);
+
+
+
+
+
         }
 
 
+//        beanInstance = this.beanFactory.getInstantiationStrategy().instantiate(
+//                mbd, beanName, this.beanFactory, factoryBean, factoryMethodToUse, argsToUse);
+
         //TODO 实例化bean对象
         return null;
+    }
+
+    /**
+     * 获取方法参数名称
+     * @param method
+     * @return
+     */
+    private String[] getParameterNames(Method method) {
+        //桥接方法是 JDK 1.5 引入泛型后，为了使Java的泛型方法生成的字节码和 1.5 版本前的字节码相兼容，由编译器自动生成的方法。
+        //子类在继承（或实现）父类（或接口）的泛型方法时，在子类中明确指定了泛型类型，那么在编译时编译器会自动生成桥接方法（当然还有其他情况会生成桥接方法，这里只是列举了其中一种情况）
+        if (method.isBridge()) {
+            throw new RuntimeException("暂不支持桥接方法获取方法参数");
+        }
+
+        //JAVA反射无法获取方法参数的名称，只能通过字节码文件的本地变量表信息获取！
+        try {
+            List<String> methodParamNames = LocalVariableTableParameterNameDiscoverer.getMethodParamNames(method.getDeclaringClass(), method);
+            return methodParamNames.toArray(new String[methodParamNames.size()]);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     /**
@@ -198,8 +250,11 @@ public abstract class AbstractBeanFactory implements BeanFactory {
      * @param paramNames
      * @return
      */
-    private Object[] createArgumentArray(Class<?>[] paramTypes, String[] paramNames) {
+    private ArgumentsHolder createArgumentArray(Class<?>[] paramTypes, String[] paramNames) {
         //TODO 根据class类型和参数名称获取
+
+        this.resolveAutowiredArgument();
+
         return null;
     }
 
@@ -209,6 +264,13 @@ public abstract class AbstractBeanFactory implements BeanFactory {
      */
     private Object resolveAutowiredArgument() {
         //TODO 获取方法参数信息
+
         return null;
+    }
+
+    private static class ArgumentsHolder {
+
+
+
     }
 }
