@@ -207,7 +207,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             Class<?>[] parameterTypes = candidate.getParameterTypes();
             String[] paramNames = getParameterNames(candidate);
 
-            ArgumentsHolder argumentsHolder = this.createArgumentArray(parameterTypes, paramNames);
+            ArgumentsHolder argumentsHolder = this.createArgumentArray(beanName, beanDefinition, parameterTypes, paramNames, candidate);
 
 
 
@@ -250,7 +250,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
      * @param paramNames
      * @return
      */
-    private ArgumentsHolder createArgumentArray(Class<?>[] paramTypes, String[] paramNames) {
+    private ArgumentsHolder createArgumentArray(String beanName, BeanDefinition beanDefinition, Class<?>[] paramTypes, String[] paramNames, Method method) {
         //TODO 根据class类型和参数名称获取
 
         this.resolveAutowiredArgument();
