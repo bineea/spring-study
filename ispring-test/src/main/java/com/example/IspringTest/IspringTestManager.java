@@ -1,6 +1,7 @@
 package com.example.IspringTest;
 
 import com.example.IspringTest.config.AppConfig;
+import com.example.IspringTest.service.CreateBeanByMethod;
 import com.example.IspringTest.service.HelloworldService;
 import org.tryImpl.framework.context.AnnotationConfigApplicationContext;
 
@@ -20,5 +21,9 @@ public class IspringTestManager {
         HelloworldService helloworldService = (HelloworldService) annotationConfigApplicationContext.getBean("helloworldServiceImpl");
         System.out.println(helloworldService);
         System.out.println(helloworldService.sayHelloworld());
+
+        CreateBeanByMethod createBeanByMethod = (CreateBeanByMethod) annotationConfigApplicationContext.getBean("createBeanByMethod");
+        System.out.println(createBeanByMethod);
+        System.out.println(createBeanByMethod.doSomething());
     }
 }

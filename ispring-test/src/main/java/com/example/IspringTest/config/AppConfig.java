@@ -1,5 +1,8 @@
 package com.example.IspringTest.config;
 
+import com.example.IspringTest.service.CreateBeanByMethod;
+import com.example.IspringTest.service.HelloworldServiceImpl;
+import org.tryImpl.framework.annotation.Bean;
 import org.tryImpl.framework.annotation.ComponentScan;
 import org.tryImpl.framework.annotation.Configuration;
 import org.tryImpl.framework.annotation.EnableAspectJAutoProxy;
@@ -17,4 +20,9 @@ import org.tryImpl.framework.annotation.EnableAspectJAutoProxy;
 @EnableAspectJAutoProxy
 @ComponentScan({"com.example.IspringTest"})
 public class AppConfig {
+
+    @Bean(name = "createBeanByMethod")
+    public CreateBeanByMethod createCreateBeanByMethod() {
+        return new CreateBeanByMethod();
+    }
 }
