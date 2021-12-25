@@ -127,10 +127,16 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     private Object createBeanInstance(BeanDefinition beanDefinition) {
         try {
+            Object beanInstance = null;
             if (beanDefinition.getFactoryMethodName() != null && beanDefinition.getFactoryMethodName().trim().length() > 0) {
-                //TODO 执行方法创建bean对象
+                //执行方法创建bean对象
+                beanInstance = this.instantiateUsingFactoryMethod(beanDefinition.getBeanName(), beanDefinition);
+                //spring中不是补全beanDefinition的beanClass属性，而是通过org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor#buildAutowiringMetadata
+                //解析class标注@Autowired注解的属性，并进行赋值操作
+                beanDefinition.setBeanClass(beanInstance.getClass());
+                return beanInstance;
             }
-            Object beanInstance = beanDefinition.getBeanClass().getDeclaredConstructor().newInstance();
+            beanInstance = beanDefinition.getBeanClass().getDeclaredConstructor().newInstance();
             return beanInstance;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
@@ -194,6 +200,9 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             throw new RuntimeException("暂不支持静态工厂方法创建Bean对象");
         }
 
+        Method factoryMethodToUse = null;
+        Object[] argsToUse = null;
+
         Method[] rawCandidates = factoryClass.getDeclaredMethods();
         HashSet<Method> candidateSet = new HashSet<>();
         for (Method candidate : rawCandidates) {
@@ -206,21 +215,47 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         for (Method candidate : candidateSet) {
             Class<?>[] parameterTypes = candidate.getParameterTypes();
             String[] paramNames = getParameterNames(candidate);
-
             ArgumentsHolder argumentsHolder = this.createArgumentArray(beanName, beanDefinition, parameterTypes, paramNames, candidate);
 
-
-
-
-
+            //比对参数类型与参数值是否匹配
+            if (parameterTypes.length > 0) {
+                for (int i=0; i<parameterTypes.length; i++) {
+                    if (argumentsHolder.arguments == null) {
+                        break;
+                    }
+                    if (argumentsHolder.arguments.length - 1 < i) {
+                        break;
+                    }
+                    if (!parameterTypes[i].equals(argumentsHolder.arguments[i].getClass())) {
+                        break;
+                    }
+                    if (i == parameterTypes.length - 1) {
+                        factoryMethodToUse = candidate;
+                        argsToUse = argumentsHolder.arguments;
+                    }
+                }
+            } else {
+                //基本等价于spring的处理
+                //根据参数类型和参数值计算方法匹配度，如果方法参数为空，则将当前方法直接赋值给factoryMethodToUse
+                factoryMethodToUse = candidate;
+            }
         }
 
 
-//        beanInstance = this.beanFactory.getInstantiationStrategy().instantiate(
-//                mbd, beanName, this.beanFactory, factoryBean, factoryMethodToUse, argsToUse);
+        if (factoryMethodToUse == null) {
+            throw new RuntimeException("无法匹配工厂方法");
+        }
+        if (Void.TYPE == factoryMethodToUse.getReturnType()) {
+            throw new RuntimeException("无效工厂方法");
+        }
 
-        //TODO 实例化bean对象
-        return null;
+        try {
+            Object beanInstance = factoryMethodToUse.invoke(factoryBean, argsToUse);
+            return beanInstance;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("工厂方法创建Bean对象异常", e);
+        }
     }
 
     /**
@@ -251,25 +286,30 @@ public abstract class AbstractBeanFactory implements BeanFactory {
      * @return
      */
     private ArgumentsHolder createArgumentArray(String beanName, BeanDefinition beanDefinition, Class<?>[] paramTypes, String[] paramNames, Method method) {
-        //TODO 根据class类型和参数名称获取
-
-        this.resolveAutowiredArgument();
-
-        return null;
+        ArgumentsHolder argumentsHolder = new ArgumentsHolder(paramTypes.length);
+        for (int i=0; i<paramTypes.length; i++) {
+            Object argument = this.resolveAutowiredArgument(paramNames[i]);
+            argumentsHolder.arguments[i] = argument;
+        }
+        return argumentsHolder;
     }
 
     /**
      * 获取参数对象
      * @return
      */
-    private Object resolveAutowiredArgument() {
-        //TODO 获取方法参数信息
-
-        return null;
+    private Object resolveAutowiredArgument(String beanName) {
+        Object bean = getBean(beanName);
+        return bean;
     }
 
     private static class ArgumentsHolder {
 
+        public final Object[] arguments;
+
+        ArgumentsHolder (int size) {
+            arguments = new Object[size];
+        }
 
 
     }

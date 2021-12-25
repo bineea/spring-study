@@ -209,8 +209,8 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     }
 
     private void loadBeanDefinitionsForBeanMethod(BeanDefinitionRegistry registry, ConfigurationClass configurationClass, Method method) {
-        if (method.isAnnotationPresent(Bean.class)) {
-            throw new RuntimeException("");
+        if (!method.isAnnotationPresent(Bean.class)) {
+            throw new RuntimeException("Bean工厂方法没有@Bean注解");
         }
         String beanName = method.getDeclaredAnnotation(Bean.class).name();
         beanName = (beanName == null || beanName.trim().length() <= 0) ? method.getName() : beanName;
