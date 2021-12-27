@@ -12,4 +12,8 @@ import java.lang.annotation.Target;
 
 @Import(TransactionManagementConfigurationSelector.class)
 public @interface EnableTransactionManagement {
+
+    AdviceMode mode() default AdviceMode.PROXY;
+
+    boolean proxyTargetClass() default false;
 }
