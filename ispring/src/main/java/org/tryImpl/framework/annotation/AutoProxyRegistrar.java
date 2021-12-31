@@ -34,6 +34,7 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
         beanDefinition.setBeanName(AUTO_PROXY_CREATOR_BEAN_NAME);
         beanDefinition.setScope(ScopeEnum.singleton);
         beanDefinition.setLazy(false);
+        //暂时直接使用AnnotationAwareAspectJAutoProxyCreator
         beanDefinition.setBeanClass(AnnotationAwareAspectJAutoProxyCreator.class);
         beanDefinitionRegistry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);
     }

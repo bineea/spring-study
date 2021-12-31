@@ -1,9 +1,6 @@
 package org.tryImpl.framework.processor;
 
-import org.tryImpl.framework.aop.Advisor;
-import org.tryImpl.framework.aop.JdkDynamicAopProxy;
-import org.tryImpl.framework.aop.Pointcut;
-import org.tryImpl.framework.aop.PointcutAdvisor;
+import org.tryImpl.framework.aop.*;
 import org.tryImpl.framework.context.BeanFactory;
 import org.tryImpl.framework.context.BeanFactoryAware;
 
@@ -14,6 +11,8 @@ import java.util.List;
 public abstract class AbstractAutoProxyCreator implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
 
     private BeanFactory beanFactory;
+
+    private BeanFactoryAdvisorRetrievalHelper advisorRetrievalHelper;
 
     @Override
     public Object postProcessBeforeInstantiation(String beanName, Class<?> beanClass) {
@@ -42,7 +41,7 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
     }
 
     protected List<Advisor> findCandidateAdvisors() {
-        return Collections.emptyList();
+        return advisorRetrievalHelper.findAdvisorBeans();
     }
 
     protected Object wrapIfNecessary(Object bean, String beanName) {

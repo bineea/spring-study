@@ -6,6 +6,7 @@ import org.tryImpl.framework.context.BeanFactory;
 import org.tryImpl.framework.context.ConfigurableListableBeanFactory;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCreator {
@@ -15,14 +16,15 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCre
     @Override
     protected List<Advisor> findCandidateAdvisors() {
         List<Advisor> candidateAdvisors = super.findCandidateAdvisors();
-        if (candidateAdvisors == null ||  candidateAdvisors.isEmpty()) {
-//            List<Advisor> advisors = beanFactoryAspectJAdvisorsBuilder.buildAspectJAdvisors();
-//            if (advisors != null && !advisors.isEmpty()) {
-//                //执行Collections.emptyList()，并不能直接操作add；因为Collections.emptyList()没有进行初始化操作
-//                candidateAdvisors = new ArrayList<>();
-//                candidateAdvisors.addAll(advisors);
-//            }
-            return beanFactoryAspectJAdvisorsBuilder.buildAspectJAdvisors();
+        if (beanFactoryAspectJAdvisorsBuilder != null) {
+            List<Advisor> advisors = beanFactoryAspectJAdvisorsBuilder.buildAspectJAdvisors();
+            if (advisors != null && !advisors.isEmpty()) {
+                //执行Collections.emptyList()，并不能直接操作add；因为Collections.emptyList()没有进行初始化操作
+                if (candidateAdvisors == null || candidateAdvisors.isEmpty()) {
+                    candidateAdvisors = new LinkedList();
+                }
+                candidateAdvisors.addAll(advisors);
+            }
         }
         return candidateAdvisors;
     }

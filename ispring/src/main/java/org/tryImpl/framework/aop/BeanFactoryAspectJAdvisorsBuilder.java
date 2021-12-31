@@ -3,10 +3,7 @@ package org.tryImpl.framework.aop;
 import org.tryImpl.framework.annotation.Aspect;
 import org.tryImpl.framework.context.ListableBeanFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BeanFactoryAspectJAdvisorsBuilder {
@@ -31,8 +28,8 @@ public class BeanFactoryAspectJAdvisorsBuilder {
             synchronized (this) {
                 aspectNames = this.aspectBeanNames;
                 if (aspectNames == null) {
-                    List<Advisor> advisors = new ArrayList<>();
-                    aspectNames = new ArrayList<>();
+                    List<Advisor> advisors = new LinkedList<>();
+                    aspectNames = new LinkedList<>();
                     //解析aspect
                     String[] beanNamesForType = beanFactory.getBeanNamesForType(Object.class);
                     for (String beanName : beanNamesForType) {
