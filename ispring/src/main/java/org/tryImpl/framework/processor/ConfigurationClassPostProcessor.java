@@ -81,7 +81,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         }
 
         //解析import注解
-        processImports(registry, configurationClass);
+        processImports(registry, configurationClass, configurationClass);
 
         //解析bean注解
         Method[] methods = clazz.getDeclaredMethods();
@@ -159,15 +159,15 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         return path;
     }
 
-    private void processImports(BeanDefinitionRegistry registry, ConfigurationClass configurationClass) {
+    private void processImports(BeanDefinitionRegistry registry, ConfigurationClass curretnConfigurationClass, ConfigurationClass configurationClass) {
         Set<Class<?>> imports = this.getImports(configurationClass.getClazz());
         for (Class<?> importClass : imports) {
             if (ImportSelector.class.isAssignableFrom(importClass)) {
                 try {
                     ImportSelector importSelector = (ImportSelector) importClass.getDeclaredConstructor().newInstance();
-                    for (String importClassName : importSelector.selectImports()) {
+                    for (String importClassName : importSelector.selectImports(curretnConfigurationClass.getClass().getAnnotations())) {
                         Class<?> importSelectClass = Class.forName(importClassName);
-                        processImports(registry, new ConfigurationClass(importSelectClass));
+                        processImports(registry, curretnConfigurationClass, new ConfigurationClass(importSelectClass));
                     }
                 } catch (Exception e)  {
                     e.printStackTrace();

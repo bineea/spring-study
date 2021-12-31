@@ -1,5 +1,6 @@
 package org.tryImpl.framework.annotation;
 
+import org.tryImpl.framework.aop.AopConfigUtils;
 import org.tryImpl.framework.context.BeanDefinition;
 import org.tryImpl.framework.context.BeanDefinitionRegistry;
 import org.tryImpl.framework.context.ScopeEnum;
@@ -14,17 +15,18 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
     @Override
     public void registerBeanDefinitions(BeanDefinitionRegistry beanDefinitionRegistry) {
 
-        //FIXME 暂时默认处理AdviceMode.PROXY模式
+        //暂时只支持处理AdviceMode.PROXY模式
         if (beanDefinitionRegistry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME) != null) {
             BeanDefinition apcDefinition = beanDefinitionRegistry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
-            //TODO 比较后置处理器优先级（AOP）
-//            if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
-//                int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName());
-//                int requiredPriority = findPriorityForClass(cls);
-//                if (currentPriority < requiredPriority) {
-//                    apcDefinition.setBeanClassName(cls.getName());
-//                }
-//            }
+            //比较后置处理器优先级（AOP）
+            //通过AopConfigUtils的list静态维护AOP后置处理器的优先级
+            if (!InfrastructureAdvisorAutoProxyCreator.class.getName().equals(apcDefinition.getBeanClass().getName())) {
+                int currentPriority = AopConfigUtils.findPriorityForClass(apcDefinition.getBeanClass().getName());
+                int requiredPriority = AopConfigUtils.findPriorityForClass(InfrastructureAdvisorAutoProxyCreator.class);
+                if (currentPriority < requiredPriority) {
+                    apcDefinition.setBeanClass(InfrastructureAdvisorAutoProxyCreator.class);
+                }
+            }
             return;
         }
 

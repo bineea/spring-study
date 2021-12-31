@@ -167,7 +167,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         for (BeanPostProcessor beanPostProcessor : getBeanPostProcessorList()) {
             Object currentBean = beanPostProcessor.postProcessBeforeInitialization(result, beanName);
             if (currentBean == null) {
-                currentBean = beanDefinition;
+                currentBean = beanInstance;
             }
             result = beanPostProcessor.postProcessAfterInitialization(currentBean, beanName);
         }
