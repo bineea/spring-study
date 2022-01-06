@@ -11,13 +11,17 @@ public class BeanFactoryTransactionAttributeSourceAdvisor implements PointcutAdv
 
         @Override
         protected TransactionAttributeSource getTransactionAttributeSource() {
-            return null;
+            return BeanFactoryTransactionAttributeSourceAdvisor.this.transactionAttributeSource;
         }
     };
 
+    public void setTransactionAttributeSource(TransactionAttributeSource transactionAttributeSource) {
+        this.transactionAttributeSource = transactionAttributeSource;
+    }
+
     @Override
     public Pointcut getPointcut() {
-        return null;
+        return this.transactionAttributeSourcePointcut;
     }
 
     @Override
