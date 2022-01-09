@@ -1,9 +1,6 @@
 package org.tryImpl.framework.annotation;
 
-import org.tryImpl.framework.transaction.BeanFactoryTransactionAttributeSourceAdvisor;
-import org.tryImpl.framework.transaction.TransactionAttributeSource;
-import org.tryImpl.framework.transaction.TransactionInterceptor;
-import org.tryImpl.framework.transaction.TransactionManager;
+import org.tryImpl.framework.transaction.*;
 
 @Configuration
 public class ProxyTransactionManagementConfiguration {
@@ -11,26 +8,32 @@ public class ProxyTransactionManagementConfiguration {
     public static final String TRANSACTION_ADVISOR_BEAN_NAME =
             "org.springframework.transaction.config.internalTransactionAdvisor";
 
-
+    //TODO
     private TransactionManager txManager;
 
+    //注入@Transaction处理advisor
     @Bean(name = TRANSACTION_ADVISOR_BEAN_NAME)
     public BeanFactoryTransactionAttributeSourceAdvisor transactionAdvisor(
             TransactionAttributeSource transactionAttributeSource, TransactionInterceptor transactionInterceptor) {
-        //TODO 注入@Transaction处理advisor
-        return null;
+        BeanFactoryTransactionAttributeSourceAdvisor advisor = new BeanFactoryTransactionAttributeSourceAdvisor();
+        advisor.setTransactionAttributeSource(transactionAttributeSource);
+        advisor.setAdvice(transactionInterceptor);
+        return advisor;
     }
 
-    @Bean(name = "")
+    @Bean(name = "transactionAttributeSource")
     public TransactionAttributeSource transactionAttributeSource() {
-        //TODO
-        return null;
+        return new AnnotationTransactionAttributeSource();
     }
 
-    @Bean(name = "")
+    @Bean(name = "transactionInterceptor")
     public TransactionInterceptor transactionInterceptor(TransactionAttributeSource transactionAttributeSource) {
-        //TODO
-        return null;
+        TransactionInterceptor transactionInterceptor = new TransactionInterceptor();
+        transactionInterceptor.setTransactionAttributeSource(transactionAttributeSource);
+        if (txManager != null) {
+            transactionInterceptor.setTransactionManager(txManager);
+        }
+        return transactionInterceptor;
     }
 
 }

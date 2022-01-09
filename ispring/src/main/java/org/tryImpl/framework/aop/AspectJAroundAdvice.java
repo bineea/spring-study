@@ -5,7 +5,7 @@ import org.tryImpl.framework.intercept.MethodInterceptor;
 
 import java.lang.reflect.Method;
 
-public class AspectJAroundAdvice implements MethodInterceptor, Advice {
+public class AspectJAroundAdvice implements MethodInterceptor {
 
     private ListableBeanFactory beanFactory;
     private String beanName;

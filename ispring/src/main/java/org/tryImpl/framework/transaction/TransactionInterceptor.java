@@ -5,6 +5,10 @@ import org.tryImpl.framework.intercept.MethodInterceptor;
 
 public class TransactionInterceptor implements MethodInterceptor {
 
+    private TransactionManager transactionManager;
+
+    private TransactionAttributeSource transactionAttributeSource;
+
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
         //TODO 获取数据库连接，通过beanFactory获取数据库连接池
@@ -16,5 +20,22 @@ public class TransactionInterceptor implements MethodInterceptor {
         }
         //TODO commit
         return null;
+    }
+
+
+    public TransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+
+    public void setTransactionManager(TransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
+
+    public TransactionAttributeSource getTransactionAttributeSource() {
+        return transactionAttributeSource;
+    }
+
+    public void setTransactionAttributeSource(TransactionAttributeSource transactionAttributeSource) {
+        this.transactionAttributeSource = transactionAttributeSource;
     }
 }

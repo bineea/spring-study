@@ -3,8 +3,15 @@ package org.tryImpl.framework.transaction;
 import org.tryImpl.framework.aop.Advice;
 import org.tryImpl.framework.aop.Pointcut;
 import org.tryImpl.framework.aop.PointcutAdvisor;
+import org.tryImpl.framework.context.BeanFactory;
 
 public class BeanFactoryTransactionAttributeSourceAdvisor implements PointcutAdvisor {
+
+    private String adviceBeanName;
+
+    private BeanFactory beanFactory;
+
+    private transient volatile Advice advice;
 
     private TransactionAttributeSource transactionAttributeSource;
     private TransactionAttributeSourcePointcut transactionAttributeSourcePointcut = new TransactionAttributeSourcePointcut() {
@@ -26,6 +33,10 @@ public class BeanFactoryTransactionAttributeSourceAdvisor implements PointcutAdv
 
     @Override
     public Advice getAdvice() {
-        return null;
+        return this.advice;
+    }
+
+    public void setAdvice(Advice advice) {
+        this.advice = advice;
     }
 }

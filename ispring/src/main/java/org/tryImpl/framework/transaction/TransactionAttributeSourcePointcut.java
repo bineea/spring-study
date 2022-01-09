@@ -13,10 +13,12 @@ public abstract class TransactionAttributeSourcePointcut implements Pointcut, Me
 
     @Override
     public boolean matches(Method method) {
-
-
-        this.getTransactionAttributeSource();
-        return false;
+        if (method == null) {
+            return false;
+        }
+        TransactionAttributeSource transactionAttributeSource = this.getTransactionAttributeSource();
+        //FIXME 为什么spring认为“transactionAttributeSource == null”也表示匹配成功？
+        return transactionAttributeSource == null || transactionAttributeSource.getTransactionAttribute(method, method.getClass()) != null;
     }
 
     @Override
