@@ -11,19 +11,21 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
     @Override
     public TransactionAttribute getTransactionAttribute(Method method, Class<?> clazz) {
         MethodClassKey cacheKey = getCacheKey(method, clazz);
+        //TODO 需要设置"NULL"对象，避免重复解析
         TransactionAttribute transactionAttribute = attributeCache.get(cacheKey);
         if (transactionAttribute != null) {
             return transactionAttribute;
+        } else {
+            transactionAttribute = computeTransactionAttribute(method, clazz);
+            attributeCache.put(cacheKey, transactionAttribute);
+            return transactionAttribute;
         }
-        //TODO
-
-
-
-        return null;
     }
 
     private TransactionAttribute computeTransactionAttribute(Method method, Class<?> clazz) {
         //TODO
+        //1.method是否是public;
+        //2.方法或者接口findTransactionAttribute;
         return null;
     }
 

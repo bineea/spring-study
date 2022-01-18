@@ -8,7 +8,7 @@ public class ProxyTransactionManagementConfiguration {
     public static final String TRANSACTION_ADVISOR_BEAN_NAME =
             "org.springframework.transaction.config.internalTransactionAdvisor";
 
-    //TODO
+    //TODO 暂时为空
     private TransactionManager txManager;
 
     //注入@Transaction处理advisor
