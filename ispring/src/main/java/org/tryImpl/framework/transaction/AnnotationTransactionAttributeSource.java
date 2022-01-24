@@ -1,7 +1,12 @@
 package org.tryImpl.framework.transaction;
 
+import org.tryImpl.framework.annotation.Transactional;
+
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AnnotationTransactionAttributeSource implements TransactionAttributeSource {
@@ -23,14 +28,35 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
     }
 
     private TransactionAttribute computeTransactionAttribute(Method method, Class<?> clazz) {
-        //TODO
-        //1.method是否是public;
-        //2.方法或者接口findTransactionAttribute;
-        return null;
+        Method superMethod = null;
+        for (Class<?> superclass = clazz.getSuperclass(); superclass != null; superclass = superclass.getSuperclass()) {
+            //获取公有和私有全部方法信息
+            Method[] methods = superclass.isInterface() ? superclass.getMethods() : superclass.getDeclaredMethods();
+            //Method Class.getMethod(String name, Class<?>... parameterTypes)只能获取对象所声明的公开方法
+            //Method superMethod = superclass.getMethod(method.getName(), method.getParameterTypes());
+            for (Method met : methods) {
+                if (Objects.equals(met.getName(), method.getName()) && (method.getParameterTypes() == null || Arrays.equals(met.getParameterTypes(), method.getParameterTypes()))) {
+                    superMethod = met;
+                    break;
+                }
+            }
+            if (superMethod != null) {
+                break;
+            }
+        }
+
+        TransactionAttribute transactionAttribute = this.findTransactionAttribute(superMethod);
+        if (transactionAttribute != null) {
+            return transactionAttribute;
+        } else {
+            return this.findTransactionAttribute(method);
+        }
     }
 
     private TransactionAttribute findTransactionAttribute(Method method) {
-        //TODO
+        if (method.isAnnotationPresent(Transactional.class)) {
+            return new DefaultTransactionAttribute();
+        }
         return null;
     }
 
