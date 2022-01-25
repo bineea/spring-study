@@ -35,6 +35,7 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
             //Method Class.getMethod(String name, Class<?>... parameterTypes)只能获取对象所声明的公开方法
             //Method superMethod = superclass.getMethod(method.getName(), method.getParameterTypes());
             for (Method met : methods) {
+                //通过Arrays比较数组数据是否一致（本质是基于对象的equals方法，循环比对数组中的每个对象）
                 if (Objects.equals(met.getName(), method.getName()) && (method.getParameterTypes() == null || Arrays.equals(met.getParameterTypes(), method.getParameterTypes()))) {
                     superMethod = met;
                     break;
