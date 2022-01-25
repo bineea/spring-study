@@ -11,20 +11,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AnnotationTransactionAttributeSource implements TransactionAttributeSource {
 
+    private final static TransactionAttribute NULL_TRANSACTION_ATTRIBUTE = new DefaultTransactionAttribute();
+
     private final Map<Object, TransactionAttribute> attributeCache = new ConcurrentHashMap<>(1024);
 
     @Override
     public TransactionAttribute getTransactionAttribute(Method method, Class<?> clazz) {
         MethodClassKey cacheKey = getCacheKey(method, clazz);
-        //TODO 需要设置"NULL"对象，避免重复解析
+        //设置"NULL"对象，避免重复解析
         TransactionAttribute transactionAttribute = attributeCache.get(cacheKey);
-        if (transactionAttribute != null) {
-            return transactionAttribute;
-        } else {
+        if (transactionAttribute == null) {
             transactionAttribute = computeTransactionAttribute(method, clazz);
+            if (transactionAttribute == null) {
+                transactionAttribute = NULL_TRANSACTION_ATTRIBUTE;
+            }
             attributeCache.put(cacheKey, transactionAttribute);
-            return transactionAttribute;
         }
+        return transactionAttribute;
     }
 
     private TransactionAttribute computeTransactionAttribute(Method method, Class<?> clazz) {
@@ -56,7 +59,7 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
 
     private TransactionAttribute findTransactionAttribute(Method method) {
         if (method.isAnnotationPresent(Transactional.class)) {
-            return new DefaultTransactionAttribute();
+            return new DefaultTransactionAttribute(method.getAnnotation(Transactional.class));
         }
         return null;
     }
