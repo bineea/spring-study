@@ -2,24 +2,30 @@ package org.tryImpl.framework.transaction;
 
 import org.tryImpl.framework.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DefaultTransactionAttribute implements TransactionAttribute,TransactionDefinition {
 
-    private Class<? extends Throwable>[] rollbackFor;
+    private static final String ROLLBACK_ON_RUNTIME_EXCEPTIONS = RuntimeException.class.getName();
 
-    public DefaultTransactionAttribute() {}
+    private List<String> rollbackRules;
 
-    public DefaultTransactionAttribute(Transactional transactional) {
-        this.rollbackFor = transactional.rollbackFor();
+    public DefaultTransactionAttribute() {
+        this.rollbackRules = new ArrayList<>();
     }
 
-    public Class<? extends Throwable>[] getRollbackFor() {
-
-
-
-        return rollbackFor;
+    public List<String> getRollbackRules() {
+        return rollbackRules;
     }
 
-    public void setRollbackFor(Class<? extends Throwable>[] rollbackFor) {
-        this.rollbackFor = rollbackFor;
+    public void setRollbackRules(List<String> rollbackRules) {
+        this.rollbackRules = rollbackRules;
+    }
+
+    @Override
+    public boolean rollbackOn(Throwable ex) {
+        //TODO 参考RuleBasedTransactionAttribute
+        return (ex instanceof RuntimeException || ex instanceof Error);
     }
 }

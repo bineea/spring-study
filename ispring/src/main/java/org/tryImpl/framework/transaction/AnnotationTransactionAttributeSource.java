@@ -4,6 +4,7 @@ import org.tryImpl.framework.annotation.Transactional;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,10 +17,20 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
 
     @Override
     public TransactionAttribute getTransactionAttribute(Method method, Class<?> clazz) {
+        //忽略Object对象方法
+        if (method.getDeclaringClass() == Object.class) {
+            return null;
+        }
         MethodClassKey cacheKey = getCacheKey(method, clazz);
         //设置"NULL"对象，避免重复解析
         TransactionAttribute transactionAttribute = attributeCache.get(cacheKey);
-        if (transactionAttribute == null) {
+        if (transactionAttribute != null) {
+            if (transactionAttribute == NULL_TRANSACTION_ATTRIBUTE) {
+                return null;
+            } else {
+                return transactionAttribute;
+            }
+        } else {
             transactionAttribute = computeTransactionAttribute(method, clazz);
             if (transactionAttribute == null) {
                 transactionAttribute = NULL_TRANSACTION_ATTRIBUTE;
@@ -58,13 +69,22 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
 
     private TransactionAttribute findTransactionAttribute(Method method) {
         if (method.isAnnotationPresent(Transactional.class)) {
-            return new DefaultTransactionAttribute(method.getAnnotation(Transactional.class));
+            return this.parseTransactionAnnotation(method.getAnnotation(Transactional.class));
         }
         return null;
     }
 
     private MethodClassKey getCacheKey(Method method, Class<?> clazz) {
         return new MethodClassKey(method, clazz);
+    }
+
+    private TransactionAttribute parseTransactionAnnotation(Transactional transactional) {
+        DefaultTransactionAttribute defaultTransactionAttribute = new DefaultTransactionAttribute();
+        List<String> rollbackRules = defaultTransactionAttribute.getRollbackRules();
+        for (Class<? extends Throwable> rollbackForClass : transactional.rollbackFor()) {
+            rollbackRules.add(rollbackForClass.getName());
+        }
+        return defaultTransactionAttribute;
     }
 
     class MethodClassKey {
