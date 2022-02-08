@@ -1,5 +1,6 @@
 package org.tryImpl.framework.annotation;
 
+import net.sf.cglib.core.CollectionUtils;
 import org.tryImpl.framework.transaction.*;
 
 @Configuration
@@ -8,7 +9,6 @@ public class ProxyTransactionManagementConfiguration {
     public static final String TRANSACTION_ADVISOR_BEAN_NAME =
             "org.springframework.transaction.config.internalTransactionAdvisor";
 
-    //TODO 暂时为空
     private TransactionManager txManager;
 
     //注入@Transaction处理advisor

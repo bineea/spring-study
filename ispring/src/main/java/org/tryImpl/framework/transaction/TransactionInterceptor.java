@@ -9,6 +9,13 @@ public class TransactionInterceptor implements MethodInterceptor {
 
     private TransactionAttributeSource transactionAttributeSource;
 
+    public TransactionInterceptor () {}
+
+    public TransactionInterceptor (PlatformTransactionManager ptm, TransactionAttributeSource tas) {
+        setTransactionManager(ptm);
+        setTransactionAttributeSource(tas);
+    }
+
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
         //TODO 获取数据库连接，通过beanFactory获取数据库连接池
