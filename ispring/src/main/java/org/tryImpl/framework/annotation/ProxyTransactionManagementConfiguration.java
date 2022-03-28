@@ -1,6 +1,5 @@
 package org.tryImpl.framework.annotation;
 
-import net.sf.cglib.core.CollectionUtils;
 import org.tryImpl.framework.transaction.*;
 
 @Configuration

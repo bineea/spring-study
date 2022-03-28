@@ -1,7 +1,5 @@
 package org.tryImpl.framework.transaction;
 
-import org.tryImpl.framework.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 

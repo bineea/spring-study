@@ -54,7 +54,7 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
 
     protected Object[] getAdvicesAndAdvisorsForBean(Class<?> clazz, String beanName) {
         List<Advisor> candidateAdvisors = this.findCandidateAdvisors();
-        List<Advisor> eligibleAdvisors = this.findAdvisorsThatCanApply(candidateAdvisors, clazz, beanName);
+        List<Advisor> eligibleAdvisors = new ArrayList<>();
         for (Advisor advisor : candidateAdvisors) {
             if (advisor instanceof PointcutAdvisor) {
                 Pointcut pointcut = ((PointcutAdvisor) advisor).getPointcut();
@@ -75,13 +75,5 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
         }
         Object proxyInstance = new JdkDynamicAopProxy(advisors, targetBeanObj).getProxy(clazz.getClassLoader(), clazz.getInterfaces());
         return proxyInstance;
-    }
-
-    protected void extendAdvisors(List<Advisor> candidateAdvisors) {
-    }
-
-    protected List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvisors, Class<?> beanClass, String beanName) {
-        //TODO 获取其他类型的advisor（spring事务等）
-        return new ArrayList<>();
     }
 }
