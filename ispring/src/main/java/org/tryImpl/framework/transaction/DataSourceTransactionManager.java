@@ -2,6 +2,9 @@ package org.tryImpl.framework.transaction;
 
 import javax.sql.DataSource;
 
+/**
+ * 配置类手动注册为Spring Bean，配置DataSource数据源数据
+ */
 public class DataSourceTransactionManager implements PlatformTransactionManager {
 
     private DataSource dataSource;
@@ -28,6 +31,11 @@ public class DataSourceTransactionManager implements PlatformTransactionManager 
     @Override
     public TransactionStatus getTransaction(TransactionDefinition transactionDefinition) throws Exception {
         //TODO
+
+        DefaultTransactionStatus defaultTransactionStatus = new DefaultTransactionStatus();
+
+        //TODO 创建jdbc连接
+
         return null;
     }
 
