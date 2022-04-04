@@ -9,4 +9,10 @@ package org.tryImpl.framework.transaction;
  * @date: 2022/1/25 11:17
  */
 public interface TransactionDefinition {
+
+    int PROPAGATION_REQUIRED = 0;
+
+    default int getPropagationBehavior() {
+        return PROPAGATION_REQUIRED;
+    }
 }

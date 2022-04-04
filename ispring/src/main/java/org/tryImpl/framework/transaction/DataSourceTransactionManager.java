@@ -1,6 +1,7 @@
 package org.tryImpl.framework.transaction;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 
 /**
  * 配置类手动注册为Spring Bean，配置DataSource数据源数据
@@ -31,21 +32,84 @@ public class DataSourceTransactionManager implements PlatformTransactionManager 
     @Override
     public TransactionStatus getTransaction(TransactionDefinition transactionDefinition) throws Exception {
         //TODO
+        TransactionDefinition def = (transactionDefinition != null ? transactionDefinition : new DefaultTransactionDefinition());
+        Object transaction = doGetTransaction();
+        return startTransaction(def, transaction);
+    }
 
-        DefaultTransactionStatus defaultTransactionStatus = new DefaultTransactionStatus();
+    private DataSourceTransactionObject doGetTransaction() {
+        return new DataSourceTransactionObject();
+    }
 
-        //TODO 创建jdbc连接
+    private TransactionStatus startTransaction(TransactionDefinition definition, Object transaction) {
+        DefaultTransactionStatus status = new DefaultTransactionStatus(transaction);
 
-        return null;
+        try {
+            Connection connection = getDataSource().getConnection();
+            if (connection.getAutoCommit()) {
+                connection.setAutoCommit(false);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        return status;
     }
 
     @Override
     public void commit(TransactionStatus transactionStatus) throws Exception {
         //TODO
+        DefaultTransactionStatus defStatus = (DefaultTransactionStatus) transactionStatus;
+        doCommit(defStatus);
+    }
+
+    private void doCommit(DefaultTransactionStatus defStatus) {
+        DataSourceTransactionObject txObject = (DataSourceTransactionObject) defStatus.getTransaction();
+        Connection currentConnection = txObject.getCurrentConnection();
+
+        try {
+            currentConnection.commit();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void rollback(TransactionStatus transactionStatus) throws Exception {
         //TODO
+        DefaultTransactionStatus defStatus = (DefaultTransactionStatus) transactionStatus;
+        doRollback(defStatus);
+    }
+
+    private void doRollback(DefaultTransactionStatus defStatus) {
+        DataSourceTransactionObject txObject = (DataSourceTransactionObject) defStatus.getTransaction();
+        Connection currentConnection = txObject.getCurrentConnection();
+
+        try {
+            currentConnection.rollback();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static class DataSourceTransactionObject {
+        private Connection currentConnection;
+
+        public Connection getCurrentConnection() {
+            return currentConnection;
+        }
+
+        public void setCurrentConnection(Connection currentConnection) {
+
+            if (currentConnection != null) {
+                //TODO 释放连接
+                try {
+                    currentConnection.close();
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+            this.currentConnection = currentConnection;
+        }
     }
 }

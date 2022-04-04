@@ -2,6 +2,17 @@ package org.tryImpl.framework.transaction;
 
 //TODO
 public class DefaultTransactionStatus implements TransactionStatus {
+
+    private final Object transaction;
+
+    public DefaultTransactionStatus(Object transaction) {
+        this.transaction = transaction;
+    }
+
+    public Object getTransaction() {
+        return transaction;
+    }
+
     @Override
     public boolean isNewTransaction() {
         return false;
