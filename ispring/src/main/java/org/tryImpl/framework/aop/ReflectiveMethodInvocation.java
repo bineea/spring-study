@@ -33,9 +33,11 @@ public class ReflectiveMethodInvocation implements MethodInvocation  {
 
     @Override
     public Object proceed() throws Throwable {
+        //执行完成所有方法拦截，才能执行方法原来的处理逻辑
         if (this.currentInterceptorIndex == this.methodInterceptorList.size() - 1) {
             return this.invokeJoinpoint();
         }
+        //获取下一个方法拦截
         MethodInterceptor methodInterceptor = methodInterceptorList.get(++this.currentInterceptorIndex);
         return methodInterceptor.invoke(this);
     }
