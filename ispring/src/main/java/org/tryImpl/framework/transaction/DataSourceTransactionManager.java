@@ -31,23 +31,52 @@ public class DataSourceTransactionManager implements PlatformTransactionManager 
 
     @Override
     public TransactionStatus getTransaction(TransactionDefinition transactionDefinition) throws Exception {
-        //TODO
-        TransactionDefinition def = (transactionDefinition != null ? transactionDefinition : new DefaultTransactionDefinition());
+        TransactionDefinition def = transactionDefinition != null ? transactionDefinition : TransactionDefinition.withDefaults();
         Object transaction = doGetTransaction();
+        if (isExistingTransaction(transaction)) {
+            // Existing transaction found -> check propagation behavior to find out how to behave.
+            return handleExistingTransaction(def, transaction);
+        }
         return startTransaction(def, transaction);
     }
 
+    private boolean isExistingTransaction(Object transaction) {
+        DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
+        return txObject.getCurrentConnection() != null && txObject.isTransactionActive() == true;
+    }
+
+    private TransactionStatus handleExistingTransaction(TransactionDefinition definition, Object transaction) {
+        DefaultTransactionStatus status = new DefaultTransactionStatus(transaction);
+        return status;
+    }
+
     private DataSourceTransactionObject doGetTransaction() {
-        return new DataSourceTransactionObject();
+        DataSourceTransactionObject txObject = new DataSourceTransactionObject();
+        Connection connection = (Connection) TransactionSynchronizationManager.getResource(getDataSource());
+        txObject.setCurrentConnection(connection);
+        txObject.setNewConnection(false);
+        return txObject;
     }
 
     private TransactionStatus startTransaction(TransactionDefinition definition, Object transaction) {
-        DefaultTransactionStatus status = new DefaultTransactionStatus(transaction);
+        DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
 
+        DefaultTransactionStatus status = new DefaultTransactionStatus(transaction);
+        Connection connection = null;
         try {
-            Connection connection = getDataSource().getConnection();
+            if (txObject.isSynchronizedWithTransaction()) {
+                Connection newCon = getDataSource().getConnection();
+                txObject.setCurrentConnection(newCon);
+                txObject.setNewConnection(true);
+            }
+            txObject.setSynchronizedWithTransaction(true);
+            connection = txObject.getCurrentConnection();
             if (connection.getAutoCommit()) {
                 connection.setAutoCommit(false);
+            }
+
+            if (txObject.isNewConnection()) {
+                TransactionSynchronizationManager.bindResource(getDataSource(), connection);
             }
         } catch (Throwable e) {
             e.printStackTrace();
@@ -58,7 +87,6 @@ public class DataSourceTransactionManager implements PlatformTransactionManager 
 
     @Override
     public void commit(TransactionStatus transactionStatus) throws Exception {
-        //TODO
         DefaultTransactionStatus defStatus = (DefaultTransactionStatus) transactionStatus;
         doCommit(defStatus);
     }
@@ -76,7 +104,6 @@ public class DataSourceTransactionManager implements PlatformTransactionManager 
 
     @Override
     public void rollback(TransactionStatus transactionStatus) throws Exception {
-        //TODO
         DefaultTransactionStatus defStatus = (DefaultTransactionStatus) transactionStatus;
         doRollback(defStatus);
     }
@@ -93,7 +120,19 @@ public class DataSourceTransactionManager implements PlatformTransactionManager 
     }
 
     private static class DataSourceTransactionObject {
+        private boolean synchronizedWithTransaction = false;
         private Connection currentConnection;
+        private boolean transactionActive = false;
+
+        private boolean newConnection;
+
+        public boolean isSynchronizedWithTransaction() {
+            return synchronizedWithTransaction;
+        }
+
+        public void setSynchronizedWithTransaction(boolean synchronizedWithTransaction) {
+            this.synchronizedWithTransaction = synchronizedWithTransaction;
+        }
 
         public Connection getCurrentConnection() {
             return currentConnection;
@@ -110,6 +149,22 @@ public class DataSourceTransactionManager implements PlatformTransactionManager 
                 }
             }
             this.currentConnection = currentConnection;
+        }
+
+        public boolean isTransactionActive() {
+            return transactionActive;
+        }
+
+        public void setTransactionActive(boolean transactionActive) {
+            this.transactionActive = transactionActive;
+        }
+
+        public boolean isNewConnection() {
+            return newConnection;
+        }
+
+        public void setNewConnection(boolean newConnection) {
+            this.newConnection = newConnection;
         }
     }
 }

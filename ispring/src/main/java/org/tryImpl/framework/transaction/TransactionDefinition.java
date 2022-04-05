@@ -15,4 +15,8 @@ public interface TransactionDefinition {
     default int getPropagationBehavior() {
         return PROPAGATION_REQUIRED;
     }
+
+    static TransactionDefinition withDefaults() {
+        return StaticTransactionDefinition.INSTANCE;
+    }
 }
