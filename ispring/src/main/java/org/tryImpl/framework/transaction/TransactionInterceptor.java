@@ -18,17 +18,24 @@ public class TransactionInterceptor implements MethodInterceptor {
 
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-        //TODO 获取数据库连接，通过beanFactory获取数据库连接池
-        try {
-            methodInvocation.proceed();
-        } catch (Exception exception) {
-            //TODO rollback
-            return null;
+        PlatformTransactionManager ptm = null;
+        if (transactionManager instanceof PlatformTransactionManager) {
+            ptm = (PlatformTransactionManager) transactionManager;
+        } else {
+            throw new RuntimeException("目前只支持PlatformTransactionManager类型事务管理器");
         }
-        //TODO commit
-        return null;
+        TransactionAttribute transactionAttribute = transactionAttributeSource.getTransactionAttribute(methodInvocation.getMethod(), methodInvocation.getClass());
+        TransactionStatus status = ptm.getTransaction(transactionAttribute);
+        Object retVal;
+        try {
+            retVal = methodInvocation.proceed();
+        } catch (Exception exception) {
+            ptm.rollback(status);
+            throw new RuntimeException(exception);
+        }
+        ptm.commit(status);
+        return retVal;
     }
-
 
     public TransactionManager getTransactionManager() {
         return transactionManager;

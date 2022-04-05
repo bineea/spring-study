@@ -3,7 +3,7 @@ package org.tryImpl.framework.transaction;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultTransactionAttribute implements TransactionAttribute,TransactionDefinition {
+public class DefaultTransactionAttribute implements TransactionAttribute {
 
     private static final String ROLLBACK_ON_RUNTIME_EXCEPTIONS = RuntimeException.class.getName();
 
