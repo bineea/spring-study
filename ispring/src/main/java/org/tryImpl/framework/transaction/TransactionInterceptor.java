@@ -28,6 +28,7 @@ public class TransactionInterceptor implements MethodInterceptor {
         TransactionStatus status = ptm.getTransaction(transactionAttribute);
         Object retVal;
         try {
+            //触发下一个后置处理器方法
             retVal = methodInvocation.proceed();
         } catch (Exception exception) {
             ptm.rollback(status);
