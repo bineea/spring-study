@@ -13,3 +13,6 @@ ConfigurationClassPostProcessor解析所有@Bean注解标注的方法，但是�
 当beanDefinition的factoryMethodName不会空时，则解析并执行基于java反射所在config的@Bean注解标注的方法，从而实例化bean对象<br/>
 spring是通过AutowiredAnnotationBeanPostProcessor后置处理器完成属性注入<br/>
 但是此外为了简单实现，直接赋值beanDefinition的beanClass属性，复用后续属性赋值逻辑<br/>
+
+3. @Transactional实现逻辑<br/>
+通过TransactionSynchronizationManager缓存已创建的数据库连接，现在待解决的问题是如果在业务逻辑中获取到当前线程缓存的数据库连接实现事务
