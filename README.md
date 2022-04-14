@@ -15,4 +15,4 @@ spring是通过AutowiredAnnotationBeanPostProcessor后置处理器完成属性�
 但是此外为了简单实现，直接赋值beanDefinition的beanClass属性，复用后续属性赋值逻辑<br/>
 
 3. @Transactional实现逻辑<br/>
-通过TransactionSynchronizationManager缓存已创建的数据库连接，现在待解决的问题是如果在业务逻辑中获取到当前线程缓存的数据库连接实现事务
+通过TransactionSynchronizationManager缓存已创建的数据库连接，需要将缓存的数据库连接注入到数据库操作对象之中！！！
