@@ -2,7 +2,6 @@ package org.tryImpl.framework.processor;
 
 import org.tryImpl.framework.aop.Advisor;
 import org.tryImpl.framework.aop.BeanFactoryAspectJAdvisorsBuilder;
-import org.tryImpl.framework.context.BeanFactory;
 import org.tryImpl.framework.context.ConfigurableListableBeanFactory;
 
 import java.util.LinkedList;
@@ -29,12 +28,8 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCre
     }
 
     @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
-        super.setBeanFactory(beanFactory);
-        if (!(beanFactory instanceof ConfigurableListableBeanFactory)) {
-            throw new RuntimeException("AnnotationAwareAspectJAutoProxyCreator requires a ConfigurableListableBeanFactory: " + beanFactory);
-        }
+    protected void initBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+        super.initBeanFactory(beanFactory);
         beanFactoryAspectJAdvisorsBuilder = new BeanFactoryAspectJAdvisorsBuilder((ConfigurableListableBeanFactory) beanFactory);
     }
-
 }

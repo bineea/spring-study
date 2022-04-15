@@ -3,6 +3,7 @@ package org.tryImpl.framework.processor;
 import org.tryImpl.framework.aop.*;
 import org.tryImpl.framework.context.BeanFactory;
 import org.tryImpl.framework.context.BeanFactoryAware;
+import org.tryImpl.framework.context.ConfigurableListableBeanFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,14 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
+        if (!(beanFactory instanceof ConfigurableListableBeanFactory)) {
+            throw new RuntimeException("AnnotationAwareAspectJAutoProxyCreator requires a ConfigurableListableBeanFactory: " + beanFactory);
+        }
+        initBeanFactory((ConfigurableListableBeanFactory) beanFactory);
+    }
+
+    protected void initBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+        this.advisorRetrievalHelper = new BeanFactoryAdvisorRetrievalHelper(beanFactory);
     }
 
     private boolean shouldSkip(String beanName, Class<?> beanClass) {
