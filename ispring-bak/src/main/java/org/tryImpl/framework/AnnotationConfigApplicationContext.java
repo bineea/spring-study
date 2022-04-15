@@ -142,7 +142,7 @@ public class AnnotationConfigApplicationContext {
             Object bean = beanDefinition.getBeanClass().getDeclaredConstructor().newInstance();
             for(Field field : beanDefinition.getBeanClass().getDeclaredFields()) {
                 if(field.isAnnotationPresent(Autowired.class)) {
-                    //此处只实现了byName的效果
+                    //此处只实现了byName的效果！！！
                     //此处未解决循环依赖问题！！！
                     String fieldName = field.getName();
                     Object fieldBean = getBean(fieldName);
