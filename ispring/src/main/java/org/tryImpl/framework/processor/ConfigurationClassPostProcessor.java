@@ -18,6 +18,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
     private Set<ComponentScan> componentScanSet = new HashSet<>();
 
+    private final ArrayDeque<ConfigurationClass> importStack = new ArrayDeque<>();
     /**
      * 解析配置类，注册beanDefinition
      * @param registry
@@ -81,7 +82,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         }
 
         //解析import注解
-        processImports(registry, configurationClass, configurationClass);
+        processImports(registry, configurationClass, this.getImports(configurationClass.getClazz()));
 
         //解析bean注解
         Method[] methods = clazz.getDeclaredMethods();
@@ -104,7 +105,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     }
 
     private boolean shouldSkip(Class<?> clazz) {
-        return false;
+        return clazz.isAnnotationPresent(Configuration.class);
     }
 
     private Set<Class<?>> scanBeanClass(String[] scanPaths) {
@@ -159,16 +160,27 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         return path;
     }
 
-    private void processImports(BeanDefinitionRegistry registry, ConfigurationClass curretnConfigurationClass, ConfigurationClass configurationClass) {
-        Set<Class<?>> imports = this.getImports(configurationClass.getClazz());
+    private void processImports(BeanDefinitionRegistry registry, ConfigurationClass currentConfigurationClass, Set<Class<?>> imports) {
+        if (imports == null || imports.isEmpty()) {
+            return;
+        }
+
         for (Class<?> importClass : imports) {
+
+            ConfigurationClass configurationClass = new ConfigurationClass(importClass);
+            if (importStack.contains(configurationClass)) {
+                continue;
+            }
+            importStack.push(configurationClass);
             if (ImportSelector.class.isAssignableFrom(importClass)) {
                 try {
                     ImportSelector importSelector = (ImportSelector) importClass.getDeclaredConstructor().newInstance();
-                    for (String importClassName : importSelector.selectImports(curretnConfigurationClass.getClass().getAnnotations())) {
+                    HashSet<Class<?>> importSelectClasses = new HashSet<>();
+                    for (String importClassName : importSelector.selectImports(currentConfigurationClass.getClass().getAnnotations())) {
                         Class<?> importSelectClass = Class.forName(importClassName);
-                        processImports(registry, curretnConfigurationClass, new ConfigurationClass(importSelectClass));
+                        importSelectClasses.add(importSelectClass);
                     }
+                    processImports(registry, currentConfigurationClass, importSelectClasses);
                 } catch (Exception e)  {
                     e.printStackTrace();
                     throw new RuntimeException(e);
@@ -184,8 +196,11 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
                 }
             } else {
                 //候选类不是ImportSelector或ImportBeanDefinitionRegister，则将其作为Configuration类处理
+
+                //FIXME 解析config配置类，但是没有注册BeanDefinition，导致无法处理@Bean注解！！！
                 parse(registry, configurationClass);
             }
+            importStack.pop();
         }
     }
 

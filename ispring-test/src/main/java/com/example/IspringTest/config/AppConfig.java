@@ -2,10 +2,7 @@ package com.example.IspringTest.config;
 
 import com.example.IspringTest.service.CreateBeanByMethod;
 import com.example.IspringTest.service.HelloworldServiceImpl;
-import org.tryImpl.framework.annotation.Bean;
-import org.tryImpl.framework.annotation.ComponentScan;
-import org.tryImpl.framework.annotation.Configuration;
-import org.tryImpl.framework.annotation.EnableAspectJAutoProxy;
+import org.tryImpl.framework.annotation.*;
 
 /**
  * Title: AppConfig<br>
@@ -18,6 +15,7 @@ import org.tryImpl.framework.annotation.EnableAspectJAutoProxy;
 
 @Configuration
 @EnableAspectJAutoProxy
+@EnableTransactionManagement
 @ComponentScan({"com.example.IspringTest"})
 public class AppConfig {
 
