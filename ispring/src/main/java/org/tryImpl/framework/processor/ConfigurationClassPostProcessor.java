@@ -1,14 +1,10 @@
 package org.tryImpl.framework.processor;
 
 import org.tryImpl.framework.annotation.*;
-import org.tryImpl.framework.context.AnnotationConfigApplicationContext;
-import org.tryImpl.framework.context.BeanDefinition;
-import org.tryImpl.framework.context.BeanDefinitionRegistry;
-import org.tryImpl.framework.context.ScopeEnum;
+import org.tryImpl.framework.context.*;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
@@ -43,6 +39,21 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
     private void processConfigurationClass(BeanDefinitionRegistry registry, ConfigurationClass configurationClass) {
         Class<?> clazz = configurationClass.getClazz();
+
+        if (!configurationClass.getImportedBy().isEmpty()) {
+            int index = clazz.getName().lastIndexOf(".");
+            String beanName = clazz.getName().substring(index+1,index+2).toLowerCase() + clazz.getName().substring(index+2);
+
+            BeanDefinition beanDefinition = new BeanDefinition();
+            beanDefinition.setBeanName(beanName);
+            beanDefinition.setScope(ScopeEnum.singleton);
+            beanDefinition.setLazy(false);
+            beanDefinition.setBeanClass(clazz);
+            registry.registerBeanDefinition(beanName, beanDefinition);
+
+            configurationClass.setBeanName(beanName);
+        }
+
         //解析componentScan注解
         //spring只解析Configuration注解标注配置的componentScan注解
         if (clazz.isAnnotationPresent(ComponentScan.class)) {
@@ -105,7 +116,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     }
 
     private boolean shouldSkip(Class<?> clazz) {
-        return clazz.isAnnotationPresent(Configuration.class);
+        return !clazz.isAnnotationPresent(Configuration.class);
     }
 
     private Set<Class<?>> scanBeanClass(String[] scanPaths) {
@@ -196,8 +207,8 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
                 }
             } else {
                 //候选类不是ImportSelector或ImportBeanDefinitionRegister，则将其作为Configuration类处理
-
-                //FIXME 解析config配置类，但是没有注册BeanDefinition，导致无法处理@Bean注解！！！
+                Set<ConfigurationClass> importedBy = configurationClass.getImportedBy();
+                importedBy.add(currentConfigurationClass);
                 parse(registry, configurationClass);
             }
             importStack.pop();
@@ -237,10 +248,11 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         beanDef.setLazy(Boolean.FALSE);
         beanDef.setFactoryBeanName(configurationClass.getBeanName());
         beanDef.setFactoryMethodName(method.getName());
+        beanDef.setFactoryMethodReturnType(method.getReturnType());
         registry.registerBeanDefinition(beanName, beanDef);
     }
 
-    class ConfigurationClassBeanDefinition extends BeanDefinition {
+    class ConfigurationClassBeanDefinition extends RootBeanDefinition {
         private String methodName;
         private String returnTypeName;
 

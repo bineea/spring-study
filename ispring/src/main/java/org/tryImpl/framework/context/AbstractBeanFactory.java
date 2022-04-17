@@ -226,7 +226,8 @@ public abstract class AbstractBeanFactory implements BeanFactory {
                     if (argumentsHolder.arguments.length - 1 < i) {
                         break;
                     }
-                    if (!parameterTypes[i].equals(argumentsHolder.arguments[i].getClass())) {
+                    if (!parameterTypes[i].equals(argumentsHolder.arguments[i].getClass())
+                            && !parameterTypes[i].isAssignableFrom(argumentsHolder.arguments[i].getClass())) {
                         break;
                     }
                     if (i == parameterTypes.length - 1) {

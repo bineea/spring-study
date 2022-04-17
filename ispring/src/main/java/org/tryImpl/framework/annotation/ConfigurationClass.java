@@ -1,9 +1,13 @@
 package org.tryImpl.framework.annotation;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 public class ConfigurationClass {
 
     private String beanName;
     private Class<?> clazz;
+    private Set<ConfigurationClass> importedBy = new LinkedHashSet<>(1);
 
     public ConfigurationClass(Class<?> clazz) {
         this.clazz = clazz;
@@ -28,5 +32,13 @@ public class ConfigurationClass {
 
     public void setClazz(Class<?> clazz) {
         this.clazz = clazz;
+    }
+
+    public Set<ConfigurationClass> getImportedBy() {
+        return importedBy;
+    }
+
+    public void setImportedBy(Set<ConfigurationClass> importedBy) {
+        this.importedBy = importedBy;
     }
 }

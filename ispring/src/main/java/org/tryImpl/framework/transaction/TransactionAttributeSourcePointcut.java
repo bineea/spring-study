@@ -7,6 +7,8 @@ import org.tryImpl.framework.aop.Pointcut;
 import java.lang.reflect.Method;
 
 public abstract class TransactionAttributeSourcePointcut implements Pointcut, MethodMatcher {
+
+    //FIXME 通过classFilter过滤需要代理的bean，由于没有赋值，导致空指针
     private ClassFilter classFilter;
 
     public TransactionAttributeSourcePointcut (){}

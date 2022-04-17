@@ -34,7 +34,11 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory implements C
         List<String> beanNameResult = new ArrayList<>();
         for (String beanName : beanDefinitionNameList) {
             BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
-            if (beanDefinition.getBeanClass() != null && (type.isAssignableFrom(beanDefinition.getBeanClass()) || Objects.equals(type, beanDefinition.getBeanClass()))) {
+            if (beanDefinition.getBeanClass() != null
+                    && (type.isAssignableFrom(beanDefinition.getBeanClass()) || Objects.equals(type, beanDefinition.getBeanClass()))) {
+                beanNameResult.add(beanName);
+            } else if (RootBeanDefinition.class.isAssignableFrom(beanDefinition.getClass())
+                    && (type.isAssignableFrom(((RootBeanDefinition) beanDefinition).getFactoryMethodReturnType()) || Objects.equals(type, ((RootBeanDefinition) beanDefinition).getFactoryMethodReturnType()))) {
                 beanNameResult.add(beanName);
             }
         }
