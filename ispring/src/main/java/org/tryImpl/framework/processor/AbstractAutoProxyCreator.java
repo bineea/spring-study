@@ -53,6 +53,11 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
     }
 
     protected Object wrapIfNecessary(Object bean, String beanName) {
+
+        if (isInfrastructureClass(bean.getClass())) {
+            return bean;
+        }
+
         Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName);
         if(specificInterceptors != null && specificInterceptors.length > 0) {
             Object proxy = createProxy(bean.getClass(), beanName, specificInterceptors, bean);
@@ -61,14 +66,25 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
         return bean;
     }
 
+    protected boolean isInfrastructureClass(Class<?> beanClass) {
+        boolean retVal = Advice.class.isAssignableFrom(beanClass) ||
+                Pointcut.class.isAssignableFrom(beanClass) ||
+                Advisor.class.isAssignableFrom(beanClass);
+        return retVal;
+    }
+
+
     protected Object[] getAdvicesAndAdvisorsForBean(Class<?> clazz, String beanName) {
         List<Advisor> candidateAdvisors = this.findCandidateAdvisors();
         List<Advisor> eligibleAdvisors = new ArrayList<>();
         for (Advisor advisor : candidateAdvisors) {
             if (advisor instanceof PointcutAdvisor) {
                 Pointcut pointcut = ((PointcutAdvisor) advisor).getPointcut();
-                if (pointcut.getClassFilter().matches(clazz)) {
-                    eligibleAdvisors.addAll(candidateAdvisors);
+                if (!pointcut.getClassFilter().matches(clazz)) {
+                    continue;
+                } else {
+                    //FIXME 校验所有method，判断是否需要创建代理类
+                    //pointcut.getMethodMatcher().matches()
                 }
             }
         }

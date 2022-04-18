@@ -192,12 +192,12 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         Class<?> factoryClass;
         if (factoryBeanName != null && factoryBeanName.trim().length() > 0) {
             if (factoryBeanName.equals(beanName)) {
-                throw new RuntimeException("Bean工厂与当前Bean一致");
+                throw new RuntimeException("创建"+beanName+"Bean工厂与当前Bean一致");
             }
             factoryBean = this.getBean(factoryBeanName);
             factoryClass = factoryBean.getClass();
         } else {
-            throw new RuntimeException("暂不支持静态工厂方法创建Bean对象");
+            throw new RuntimeException("创建"+beanName+"暂不支持静态工厂方法创建Bean对象");
         }
 
         Method factoryMethodToUse = null;
@@ -244,10 +244,10 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
 
         if (factoryMethodToUse == null) {
-            throw new RuntimeException("无法匹配工厂方法");
+            throw new RuntimeException("创建"+beanName+"无法匹配工厂方法");
         }
         if (Void.TYPE == factoryMethodToUse.getReturnType()) {
-            throw new RuntimeException("无效工厂方法");
+            throw new RuntimeException("创建"+beanName+"无效工厂方法");
         }
 
         try {
@@ -255,7 +255,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             return beanInstance;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("工厂方法创建Bean对象异常", e);
+            throw new RuntimeException("创建"+beanName+"工厂方法创建Bean对象异常", e);
         }
     }
 

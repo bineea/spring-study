@@ -1,5 +1,6 @@
 package org.tryImpl.framework.transaction;
 
+import org.tryImpl.framework.annotation.Transactional;
 import org.tryImpl.framework.aop.ClassFilter;
 import org.tryImpl.framework.aop.MethodMatcher;
 import org.tryImpl.framework.aop.Pointcut;
@@ -8,10 +9,11 @@ import java.lang.reflect.Method;
 
 public abstract class TransactionAttributeSourcePointcut implements Pointcut, MethodMatcher {
 
-    //FIXME 通过classFilter过滤需要代理的bean，由于没有赋值，导致空指针
     private ClassFilter classFilter;
 
-    public TransactionAttributeSourcePointcut (){}
+    public TransactionAttributeSourcePointcut (){
+        this.classFilter = new TransactionAttributeSourceClassFilter();
+    }
 
     @Override
     public boolean matches(Method method) {
@@ -34,4 +36,26 @@ public abstract class TransactionAttributeSourcePointcut implements Pointcut, Me
     }
 
     protected abstract TransactionAttributeSource getTransactionAttributeSource();
+
+    private class TransactionAttributeSourceClassFilter implements ClassFilter {
+
+        @Override
+        public boolean matches(Class<?> clazz) {
+            if (TransactionManager.class.isAssignableFrom(clazz)) {
+                return false;
+            }
+
+            return getTransactionAttributeSource() == null || this.isCandidateClass(clazz, Transactional.class.getName());
+        }
+
+        private boolean isCandidateClass(Class<?> clazz, String annotationName) {
+            if (annotationName.startsWith("java.")) {
+                return true;
+            }
+            if (clazz.getName().startsWith("java.")) {
+                return false;
+            }
+            return true;
+        }
+    }
 }

@@ -59,12 +59,14 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
             }
         }
 
-        TransactionAttribute transactionAttribute = this.findTransactionAttribute(superMethod);
-        if (transactionAttribute != null) {
-            return transactionAttribute;
-        } else {
-            return this.findTransactionAttribute(method);
+        if (superMethod != null) {
+            TransactionAttribute transactionAttribute = this.findTransactionAttribute(superMethod);
+            if (transactionAttribute != null) {
+                return transactionAttribute;
+            }
         }
+
+        return this.findTransactionAttribute(method);
     }
 
     private TransactionAttribute findTransactionAttribute(Method method) {
