@@ -3,7 +3,7 @@ package org.tryImpl.framework.transaction;
 import org.tryImpl.framework.aop.MethodInvocation;
 import org.tryImpl.framework.intercept.MethodInterceptor;
 
-public class TransactionInterceptor implements MethodInterceptor {
+public class TransactionInterceptor extends TransactionAspectSupport implements MethodInterceptor {
 
     private TransactionManager transactionManager;
 
