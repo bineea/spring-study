@@ -5,6 +5,7 @@ import org.tryImpl.framework.context.BeanFactory;
 import org.tryImpl.framework.context.BeanFactoryAware;
 import org.tryImpl.framework.context.ConfigurableListableBeanFactory;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,8 +84,13 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
                 if (!pointcut.getClassFilter().matches(clazz)) {
                     continue;
                 } else {
-                    //FIXME 校验所有method，判断是否需要创建代理类
-                    //pointcut.getMethodMatcher().matches()
+                    //校验所有method，判断是否需要创建代理类
+                    for (Method method : clazz.getDeclaredMethods()) {
+                        if (pointcut.getMethodMatcher().matches(method)) {
+                            eligibleAdvisors.add(advisor);
+                            break;
+                        }
+                    }
                 }
             }
         }

@@ -33,9 +33,10 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
         } else {
             transactionAttribute = computeTransactionAttribute(method, clazz);
             if (transactionAttribute == null) {
-                transactionAttribute = NULL_TRANSACTION_ATTRIBUTE;
+                attributeCache.put(cacheKey, NULL_TRANSACTION_ATTRIBUTE);
+            } else {
+                attributeCache.put(cacheKey, transactionAttribute);
             }
-            attributeCache.put(cacheKey, transactionAttribute);
         }
         return transactionAttribute;
     }
