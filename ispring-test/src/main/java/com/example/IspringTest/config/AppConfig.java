@@ -58,7 +58,7 @@ public class AppConfig {
         return dataSource;
     }
 
-    @Bean(name = "dataSourceTransactionManager")
+    @Bean(name = "org.tryimpl.framework.transaction.transactionmanager")
     public DataSourceTransactionManager transactionManager(DataSource dataSource) {
         DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager(dataSource);
         return dataSourceTransactionManager;

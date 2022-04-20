@@ -19,6 +19,9 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
         PlatformTransactionManager ptm = null;
+        if (transactionManager == null) {
+            transactionManager = (TransactionManager) getBeanFactory().getBean(TransactionManager.class.getName().toLowerCase());
+        }
         if (transactionManager instanceof PlatformTransactionManager) {
             ptm = (PlatformTransactionManager) transactionManager;
         } else {
