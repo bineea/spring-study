@@ -1,6 +1,7 @@
 package org.tryImpl.framework.transaction;
 
 import org.tryImpl.framework.aop.MethodInvocation;
+import org.tryImpl.framework.aop.ReflectiveMethodInvocation;
 import org.tryImpl.framework.intercept.MethodInterceptor;
 
 public class TransactionInterceptor extends TransactionAspectSupport implements MethodInterceptor {
@@ -27,7 +28,14 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
         } else {
             throw new RuntimeException("目前只支持PlatformTransactionManager类型事务管理器");
         }
-        TransactionAttribute transactionAttribute = transactionAttributeSource.getTransactionAttribute(methodInvocation.getMethod(), methodInvocation.getClass());
+
+        ReflectiveMethodInvocation reflectiveMethodInvocation = null;
+        if (methodInvocation instanceof ReflectiveMethodInvocation) {
+            reflectiveMethodInvocation = (ReflectiveMethodInvocation) methodInvocation;
+        } else {
+            throw new RuntimeException("目前只支持ReflectiveMethodInvocation类型代理调用信息");
+        }
+        TransactionAttribute transactionAttribute = transactionAttributeSource.getTransactionAttribute(reflectiveMethodInvocation.getMethod(), reflectiveMethodInvocation.getTarget().getClass());
         TransactionStatus status = ptm.getTransaction(transactionAttribute);
         Object retVal;
         try {

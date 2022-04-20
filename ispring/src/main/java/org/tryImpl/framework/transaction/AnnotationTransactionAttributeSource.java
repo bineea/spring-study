@@ -3,6 +3,7 @@ package org.tryImpl.framework.transaction;
 import org.tryImpl.framework.annotation.Transactional;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,8 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
     private final static TransactionAttribute NULL_TRANSACTION_ATTRIBUTE = new DefaultTransactionAttribute();
 
     private final Map<Object, TransactionAttribute> attributeCache = new ConcurrentHashMap<>(1024);
+
+    private static final String PACKAGE_SEPARATOR = ".";
 
     @Override
     public TransactionAttribute getTransactionAttribute(Method method, Class<?> clazz) {
@@ -41,9 +44,18 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
         return transactionAttribute;
     }
 
-    private TransactionAttribute computeTransactionAttribute(Method method, Class<?> clazz) {
+    private TransactionAttribute computeTransactionAttribute(Method method, Class<?> targetClass) {
+
+        if (targetClass != null && method.getDeclaringClass() != targetClass && isOverridable(method, targetClass)) {
+            try {
+                method = targetClass.getMethod(method.getName(), method.getParameterTypes());
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+        }
+
         Method superMethod = null;
-        for (Class<?> superclass = clazz.getSuperclass(); superclass != null; superclass = superclass.getSuperclass()) {
+        for (Class<?> superclass = targetClass.getSuperclass(); superclass != null; superclass = superclass.getSuperclass()) {
             //获取公有和私有全部方法信息
             Method[] methods = superclass.isInterface() ? superclass.getMethods() : superclass.getDeclaredMethods();
             //Method Class.getMethod(String name, Class<?>... parameterTypes)只能获取对象所声明的公开方法
@@ -88,6 +100,22 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
             rollbackRules.add(rollbackForClass.getName());
         }
         return defaultTransactionAttribute;
+    }
+
+    private boolean isOverridable(Method method, Class<?> targetClass) {
+        if (Modifier.isPrivate(method.getModifiers())) {
+            return false;
+        }
+        if (Modifier.isPublic(method.getModifiers()) || Modifier.isProtected(method.getModifiers())) {
+            return true;
+        }
+        return (targetClass == null ||
+                getPackageName(method.getDeclaringClass().getName()).equals(getPackageName(targetClass.getName())));
+    }
+
+    private String getPackageName(String fqClassName) {
+        int lastDotIndex = fqClassName.lastIndexOf(PACKAGE_SEPARATOR);
+        return (lastDotIndex != -1 ? fqClassName.substring(0, lastDotIndex) : "");
     }
 
     class MethodClassKey {

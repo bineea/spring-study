@@ -86,7 +86,7 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
                 } else {
                     //校验所有method，判断是否需要创建代理类
                     for (Method method : clazz.getDeclaredMethods()) {
-                        if (pointcut.getMethodMatcher().matches(method)) {
+                        if (pointcut.getMethodMatcher().matches(method, clazz)) {
                             eligibleAdvisors.add(advisor);
                             break;
                         }

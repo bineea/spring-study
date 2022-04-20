@@ -29,7 +29,7 @@ public class JdkDynamicAopProxy implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object retVal;
-        List<MethodInterceptor> chain = getInterceptorsAndDynamicInterceptionAdvice(method);
+        List<MethodInterceptor> chain = getInterceptorsAndDynamicInterceptionAdvice(method, this.targetBeanObj.getClass());
         if (chain.isEmpty()) {
             retVal = method.invoke(this.targetBeanObj, args);
         } else {
@@ -39,13 +39,13 @@ public class JdkDynamicAopProxy implements InvocationHandler {
         return retVal;
     }
 
-    private List<MethodInterceptor> getInterceptorsAndDynamicInterceptionAdvice(Method method) {
+    private List<MethodInterceptor> getInterceptorsAndDynamicInterceptionAdvice(Method method, Class<?> targetClass) {
         List<MethodInterceptor> methodInterceptors = methodCache.get(method);
         if (methodInterceptors == null) {
             methodInterceptors = new ArrayList<>();
             for (Advisor advisor : this.advisors) {
                 if (advisor instanceof PointcutAdvisor) {
-                    if (((PointcutAdvisor) advisor).getPointcut().getMethodMatcher().matches(method)) {
+                    if (((PointcutAdvisor) advisor).getPointcut().getMethodMatcher().matches(method, targetClass)) {
                         if (advisor.getAdvice() instanceof MethodInterceptor) {
                             methodInterceptors.add((MethodInterceptor) advisor.getAdvice());
                         }

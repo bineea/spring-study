@@ -14,6 +14,6 @@ public class TransactionalServiceImpl implements TransactionalService {
     @Transactional
     @Override
     public void tryTransactionalOperate() {
-
+        System.out.println("执行com.example.IspringTest.service.TransactionalServiceImpl.tryTransactionalOperate。。。");
     }
 }

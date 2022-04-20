@@ -30,6 +30,7 @@ public class IspringTestManager {
 
         TransactionalService transactionalService = (TransactionalService) annotationConfigApplicationContext.getBean("transactionalServiceImpl");
         System.out.println(transactionalService);
+        transactionalService.tryTransactionalOperate();
 
         SimpleTestDao simpleTestDao = (SimpleTestDao) annotationConfigApplicationContext.getBean("simpleTestDaoImpl");
         System.out.println(simpleTestDao);

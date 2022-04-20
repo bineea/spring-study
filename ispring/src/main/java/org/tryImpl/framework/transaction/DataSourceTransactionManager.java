@@ -64,7 +64,8 @@ public class DataSourceTransactionManager implements PlatformTransactionManager 
         DefaultTransactionStatus status = new DefaultTransactionStatus(transaction);
         Connection connection = null;
         try {
-            if (txObject.isSynchronizedWithTransaction()) {
+            if (txObject.getCurrentConnection() == null || txObject.isSynchronizedWithTransaction()) {
+                //FIXME 数据库连接获取到自动关闭。。。
                 Connection newCon = getDataSource().getConnection();
                 txObject.setCurrentConnection(newCon);
                 txObject.setNewConnection(true);

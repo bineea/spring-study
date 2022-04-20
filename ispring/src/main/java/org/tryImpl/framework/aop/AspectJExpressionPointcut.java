@@ -64,7 +64,7 @@ public class AspectJExpressionPointcut implements ExpressionPointcut, ClassFilte
     }
 
     @Override
-    public boolean matches(Method method) {
+    public boolean matches(Method method, Class<?> targetClass) {
         this.obtainPointcutExpression();
         if (match(method)) {
             return true;
