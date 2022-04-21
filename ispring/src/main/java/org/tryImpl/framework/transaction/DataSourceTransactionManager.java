@@ -65,7 +65,6 @@ public class DataSourceTransactionManager implements PlatformTransactionManager 
         Connection connection = null;
         try {
             if (txObject.getCurrentConnection() == null || txObject.isSynchronizedWithTransaction()) {
-                //FIXME 数据库连接获取到自动关闭。。。
                 Connection newCon = getDataSource().getConnection();
                 txObject.setCurrentConnection(newCon);
                 txObject.setNewConnection(true);
@@ -139,17 +138,16 @@ public class DataSourceTransactionManager implements PlatformTransactionManager 
             return currentConnection;
         }
 
-        public void setCurrentConnection(Connection currentConnection) {
-
+        public void setCurrentConnection(Connection connection) {
+            //释放原数据库连接
             if (currentConnection != null) {
-                //TODO 释放连接
                 try {
                     currentConnection.close();
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
             }
-            this.currentConnection = currentConnection;
+            this.currentConnection = connection;
         }
 
         public boolean isTransactionActive() {
