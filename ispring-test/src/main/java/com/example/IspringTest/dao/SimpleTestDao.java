@@ -1,6 +1,8 @@
 package com.example.IspringTest.dao;
 
+import com.example.IspringTest.entity.SampleTestDO;
+
 public interface SimpleTestDao {
 
-    int updateById(long id);
+    int updateById(SampleTestDO sampleTestDO);
 }

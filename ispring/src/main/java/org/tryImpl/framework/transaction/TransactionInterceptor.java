@@ -41,9 +41,9 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
         try {
             //触发下一个后置处理器方法
             retVal = methodInvocation.proceed();
-        } catch (Exception exception) {
+        } catch (Throwable throwable) {
             ptm.rollback(status);
-            throw new RuntimeException(exception);
+            throw new RuntimeException(throwable);
         }
         ptm.commit(status);
         return retVal;
