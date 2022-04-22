@@ -15,4 +15,12 @@ spring是通过AutowiredAnnotationBeanPostProcessor后置处理器完成属性�
 但是此外为了简单实现，直接赋值beanDefinition的beanClass属性，复用后续属性赋值逻辑<br/>
 
 3. @Transactional实现逻辑<br/>
-通过TransactionSynchronizationManager缓存已创建的数据库连接，需要将缓存的数据库连接注入到数据库操作对象之中！！！
+通过TransactionSynchronizationManager缓存已创建的数据库连接，需要将缓存的数据库连接注入到数据库操作对象之中，即可保证在同一个事务中使用同一个数据库连接实现全部提交或者全部回滚
+
+---
+
+关于FactoryBean<br/>
+
+
+eg:<br/>
+mybatis通过MapperFactoryBean实现FactoryBean接口，针对数据层接口创建spring bean时，创建动态代理对象，并注入数据源信息！
