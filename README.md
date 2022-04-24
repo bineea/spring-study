@@ -23,4 +23,4 @@ spring是通过AutowiredAnnotationBeanPostProcessor后置处理器完成属性�
 
 
 eg:<br/>
-mybatis通过MapperFactoryBean实现FactoryBean接口，针对数据层接口创建spring bean时，创建动态代理对象，并注入数据源信息！
+mybatis通过MapperFactoryBean(属于mybatis-spring.jar)实现FactoryBean接口，针对数据层接口创建spring bean时，创建动态代理对象，并注入数据源信息！
