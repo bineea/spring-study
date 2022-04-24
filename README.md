@@ -25,7 +25,7 @@ eg：mybatis<br/>
 1.通过org.springframework.context.annotation.ConfigurationClassPostProcessor解析@MapperScan注解，通过@Import注解注入org.mybatis.spring.annotation.MapperScannerRegistrar类<br/>
 2.通过org.springframework.context.annotation.ConfigurationClassBeanDefinitionReader#loadBeanDefinitionsFromRegistrars调用MapperScannerRegistrar，注册mapper类BeanDefinition为MapperFactoryBean<br/>
 3.通过FactoryBean创建代理对象<br/>
-mybatis通过MapperFactoryBean(属于mybatis-spring.jar)实现FactoryBean接口，针对数据层接口创建spring bean时，创建动态代理对象，并注入数据源信息！
+mybatis通过MapperFactoryBean(属于mybatis-spring.jar)实现FactoryBean接口，针对数据层接口创建spring bean时，创建动态代理对象，并注入数据源信息！<br/>
 4.通过org.mybatis.spring.SqlSessionTemplate.SqlSessionInterceptor#invoke创建SqlSession代理对象，从而拦截mapper方法执行<br/>
 5.通过org.mybatis.spring.SqlSessionUtils#getSqlSession(org.apache.ibatis.session.SqlSessionFactory, org.apache.ibatis.session.ExecutorType, org.springframework.dao.support.PersistenceExceptionTranslator)
 获取TransactionSynchronizationManager缓存的数据库连接<br/>
