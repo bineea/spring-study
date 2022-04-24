@@ -19,8 +19,10 @@ spring是通过AutowiredAnnotationBeanPostProcessor后置处理器完成属性�
 
 ---
 
-关于FactoryBean<br/>
+关于spring如何整合第三方工具<br/>
 
-
-eg:<br/>
+eg：mybatis</br>
+1.通过org.springframework.context.annotation.ConfigurationClassPostProcessor解析@MapperScan注解，通过@Import注解注入org.mybatis.spring.annotation.MapperScannerRegistrar类
+2.通过org.springframework.context.annotation.ConfigurationClassBeanDefinitionReader#loadBeanDefinitionsFromRegistrars调用MapperScannerRegistrar，注册mapper类BeanDefinition为MapperFactoryBean
+3.通过FactoryBean创建代理对象<br/>
 mybatis通过MapperFactoryBean(属于mybatis-spring.jar)实现FactoryBean接口，针对数据层接口创建spring bean时，创建动态代理对象，并注入数据源信息！

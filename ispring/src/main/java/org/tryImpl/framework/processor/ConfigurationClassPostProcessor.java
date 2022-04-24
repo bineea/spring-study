@@ -113,6 +113,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             }
         }
 
+        //TODO 解析实现org.springframework.context.annotation.ImportBeanDefinitionRegistrar的类，实现第三方对象注册Spring BeanDefinition！
+        //TODO org.springframework.context.annotation.ConfigurationClassBeanDefinitionReader#loadBeanDefinitionsFromRegistrars
+
     }
 
     private boolean shouldSkip(Class<?> clazz) {
