@@ -13,6 +13,15 @@
     <artifactId>ispring-test</artifactId>
 
     <dependencies>
+
+        <!-- tomcat jar 只在编译测试时用 -->
+        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.tryImpl</groupId>
             <artifactId>ispring</artifactId>
@@ -31,6 +40,13 @@
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
             <version>1.2.5</version>
+        </dependency>
+
+        <!--fastjson-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.78</version>
         </dependency>
     </dependencies>
 

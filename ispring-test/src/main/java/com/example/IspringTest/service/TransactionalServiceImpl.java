@@ -6,6 +6,8 @@ import org.tryImpl.framework.annotation.Autowired;
 import org.tryImpl.framework.annotation.Component;
 import org.tryImpl.framework.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 @Component
 public class TransactionalServiceImpl implements TransactionalService {
 
@@ -29,5 +31,10 @@ public class TransactionalServiceImpl implements TransactionalService {
         int updateByIdCountB = simpleTestDaoImpl.updateById(sampleTestDOB);
         System.out.println(updateByIdCountB);
         throw new RuntimeException("测试事务异常。。。");
+    }
+
+    @Override
+    public void handleTransactionalOperate(Long fromId, Long toId, Long code) {
+
     }
 }
