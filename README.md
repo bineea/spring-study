@@ -18,7 +18,7 @@ spring是通过AutowiredAnnotationBeanPostProcessor后置处理器完成属性�
 通过TransactionSynchronizationManager缓存已创建的数据库连接，需要将缓存的数据库连接注入到数据库操作对象之中，即可保证在同一个事务中使用同一个数据库连接实现全部提交或者全部回滚<br/>
 
 4. SpringMVC实现逻辑<br/>
-
+通过DispatcherServlet。。。
 
 ---
 
