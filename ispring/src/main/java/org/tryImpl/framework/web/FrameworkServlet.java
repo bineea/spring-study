@@ -9,7 +9,12 @@ import java.io.IOException;
 public abstract class FrameworkServlet extends HttpServlet {
 
     protected final void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        //TODO
+        try {
+            doService(request, response);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
     }
 
     public abstract void doService(HttpServletRequest request, HttpServletResponse response) throws Exception;

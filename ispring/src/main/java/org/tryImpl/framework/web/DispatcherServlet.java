@@ -7,7 +7,8 @@ public class DispatcherServlet extends FrameworkServlet {
 
     @Override
     public void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+        //TODO
+        doDispatch(request, response);
     }
 
     protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
