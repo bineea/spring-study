@@ -1,9 +1,9 @@
-package org.tryImpl.framework;
+package org.tryImpl.framework.web.context;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-public class ContextLoaderListener implements ServletContextListener {
+public class ContextLoaderListener extends ContextLoader implements ServletContextListener {
 
     private String contextConfigLocation;
 
@@ -20,12 +20,12 @@ public class ContextLoaderListener implements ServletContextListener {
     }
 
     @Override
-    public void contextInitialized(ServletContextEvent sce) {
-
+    public void contextInitialized(ServletContextEvent event) {
+        this.initWebApplicationContext(event.getServletContext());
     }
 
     @Override
-    public void contextDestroyed(ServletContextEvent sce) {
+    public void contextDestroyed(ServletContextEvent event) {
 
     }
 }

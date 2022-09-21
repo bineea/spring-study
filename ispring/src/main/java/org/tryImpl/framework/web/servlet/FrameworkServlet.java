@@ -1,4 +1,4 @@
-package org.tryImpl.framework.web;
+package org.tryImpl.framework.web.servlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

@@ -1,4 +1,4 @@
-package org.tryImpl.framework.web;
+package org.tryImpl.framework.web.servlet;
 
 import java.util.List;
 
