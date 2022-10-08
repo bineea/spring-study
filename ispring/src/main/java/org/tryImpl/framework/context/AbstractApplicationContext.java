@@ -6,7 +6,7 @@ import org.tryImpl.framework.processor.BeanPostProcessor;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class AbstractApplicationContext implements BeanFactory {
+public abstract class AbstractApplicationContext implements ApplicationContext {
 
     protected Object keepSafeOperation = new Object();
 
@@ -29,6 +29,7 @@ public abstract class AbstractApplicationContext implements BeanFactory {
             ConfigurableListableBeanFactory beanFactory = refreshBeanFactory();
             invokeBeanFactoryPostProcessor(beanFactory);
             registerBeanPostProcessor(beanFactory);
+            onRefresh();
             createSingletonBean(beanFactory);
         }
     }
@@ -69,4 +70,9 @@ public abstract class AbstractApplicationContext implements BeanFactory {
         beanFactory.preInstantiateSingletons();
     }
 
+    /**
+     * 提供给web servlet启动初始化
+     */
+    protected void onRefresh() {
+    }
 }
